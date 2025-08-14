@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>PUBG Mobile UC — Do'kon + Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0b0f14;
+    --card:#0f1720;
+    --muted:#9aa3b2;
+    --text:#eef2f7;
+    --accent1:#ff6b35;
+    --accent2:#f7931e;
+    --border: rgba(255,255,255,.06);
+    --glass: rgba(255,255,255,.04);
+    --shadow: 0 12px 40px rgba(2,6,23,.6);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial;background:#070d15;color:var(--text);}
+  a{color:inherit;text-decoration:none}
+  .container{max-width:1200px;margin:0 auto;padding:16px;}
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+  .logo{display:flex;gap:12px;align-items:center}
+  .badge{width:44px;height:44px;background:linear-gradient(90deg,var(--accent1),var(--accent2));display:grid;place-items:center;border-radius:10px;color:#111;font-weight:900}
+  .btn{padding:10px 12px;border-radius:10px;background:var(--glass);border:1px solid var(--border);color:var(--text);cursor:pointer;font-weight:700}
+  .btn.primary{background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#111;border:none;box-shadow:0 10px 30px rgba(247,147,30,.15)}
+  .btn.ghost{background:transparent;border:1px dashed var(--border)}
+  .btn.danger{background:linear-gradient(90deg,#ef4444,#f97316);color:#111;border:none}
+  .btn.small{padding:6px 8px;font-weight:700}
+  .panel{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:14px}
+  .hero{position:relative;border-radius:16px;overflow:hidden;min-height:140px;display:flex;align-items:center}
+  .hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.38)}
+  .hero .over{position:relative;padding:20px}
+  .grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+  .card{border:1px solid var(--border);border-radius:14px;background:rgba(255,255,255,.02);padding:12px}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .stat{min-width:180px}
+  .small{font-size:13px;color:var(--muted)}
+  input,select,textarea{width:100%;padding:9px 10px;border-radius:10px;background:rgba(255,255,255,.02);border:1px solid var(--border);color:var(--text)}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:8px 6px;border-bottom:1px solid rgba(255,255,255,.06);text-align:left;font-size:14px}
+  .drawer{position:fixed;right:12px;bottom:12px;width:360px;max-width:calc(100% - 24px);z-index:80}
+  .hidden{display:none}
+  .modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,.6);display:none;align-items:center;justify-content:center;z-index:90}
+  .modal{width:min(920px,96vw);max-height:90vh;overflow:auto;border-radius:12px;background:var(--card);border:1px solid var(--border);padding:14px}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap}
+  .chip{padding:4px 8px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid var(--border);font-weight:800}
+  .pill{display:inline-block;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid var(--border);font-size:12px}
+  #toasts{position:fixed;left:12px;bottom:12px;z-index:200}
+  .toast{background:rgba(0,0,0,.68);color:#fff;padding:9px 10px;border-radius:10px;margin-top:8px}
+  @media (max-width:760px){
+    .grid{grid-template-columns:repeat(2,1fr)}
+    .drawer{left:12px;right:12px;width:auto}
+    .row > .grow{flex:1}
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header class="topbar">
+    <div class="logo">
+      <div class="badge">UC</div>
+      <div>
+        <div id="siteTitle" style="font-weight:900">PUBG MOBILE UC</div>
+        <div id="siteTagline" class="small">Tez va ishonchli yetkazib berish</div>
+      </div>
+    </div>
+    <div class="row">
+      <button id="openAdminBtn" class="btn">Admin</button>
+      <button id="openCartBtn" class="btn">🛒 Savatcha (<span id="cartCountTop">0</span>)</button>
+      <a id="contactLink" class="btn primary" href="https://t.me/MengliyevBahrom" target="_blank" rel="noopener">📨 Operator</a>
+    </div>
+  </header>
+
+  <section class="hero panel">
+    <img id="heroImg" alt="banner" src="https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=1400&auto=format&fit=crop" />
+    <div class="over">
+      <div class="pill">Rasmiy UC do'koni</div>
+      <h1 style="margin:10px 0 6px;font-size:28px">Arzon narx va tezkor to‘lov</h1>
+      <div class="small">Promo-kod kiriting, chegirmaga ega bo‘ling</div>
+    </div>
+  </section>
+
+  <main style="margin-top:12px">
+    <section class="panel">
+      <div class="row">
+        <div class="chip">Jami buyurtmalar: <span id="statOrders" style="font-weight:900;margin-left:6px">0</span></div>
+        <div class="chip">Sotilgan UC: <span id="statUC" style="font-weight:900;margin-left:6px">0</span></div>
+        <div class="chip">Bugun: <span id="statToday" style="font-weight:900;margin-left:6px">0</span></div>
+      </div>
+      <div class="grid" id="packsGrid" style="margin-top:12px"></div>
+    </section>
+
+    <section class="panel" style="margin-top:12px">
+      <div class="row" style="justify-content:space-between">
+        <h3 style="margin:0">Oxirgi buyurtmalar</h3>
+        <span class="small">real + soxta (soatda 1 marta default)</span>
+      </div>
+      <div id="recentOrders" class="grid" style="margin-top:8px"></div>
+    </section>
+  </main>
+</div>
+
+<!-- Drawer: Cart -->
+<div id="cartDrawer" class="drawer hidden">
+  <div class="panel">
+    <div class="row" style="justify-content:space-between">
+      <div style="font-weight:900">🛒 Savatcha</div>
+      <button id="closeCartBtn" class="btn small">✖</button>
+    </div>
+    <div id="cartBody" style="max-height:260px;overflow:auto;margin-top:8px"></div>
+    <div class="row" style="justify-content:space-between;margin-top:8px">
+      <div><strong>Jami:</strong></div>
+      <div><strong id="cartTotal">0</strong> <span class="small">so'm</span></div>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <button id="orderCartBtn" class="btn primary grow">🚀 Buyurtma berish</button>
+      <button id="clearCartBtn" class="btn">Tozalash</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Buy now -->
+<div id="buyModal" class="modal-backdrop" aria-hidden="true">
+  <div class="modal">
+    <h3 style="margin:0 0 8px">Buyurtma ma'lumoti</h3>
+    <div class="grid">
+      <div class="card">
+        <div class="small">Tanlangan paket</div>
+        <div id="selectedPackTitle" style="font-weight:900">—</div>
+        <div id="selectedPackPrice" class="small">—</div>
+      </div>
+      <div class="card">
+        <label class="small">Promo-kod (ixtiyoriy)</label>
+        <input id="promoInput" placeholder="Masalan: VIP10" />
+        <div class="small" id="promoInfo"></div>
+      </div>
+    </div>
+
+    <div class="grid" style="margin-top:8px">
+      <div class="card">
+        <label><strong>🔢 PUBG ID</strong></label>
+        <input id="playerId" placeholder="1234567890" />
+      </div>
+      <div class="card">
+        <label><strong>📱 Telefon (ixtiyoriy, aloqa uchun)</strong></label>
+        <input id="phone" placeholder="+998 XX XXX XX XX" />
+      </div>
+      <div class="card">
+        <label><strong>📝 Izoh</strong></label>
+        <textarea id="note" rows="2" placeholder="Ixtiyoriy"></textarea>
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:8px">
+      <span class="small">To‘lov:</span>
+      <div id="payButtons" class="row"></div>
+    </div>
+
+    <div class="row" style="justify-content:flex-end;margin-top:10px">
+      <button id="closeBuyModal" class="btn">Bekor</button>
+      <button id="sendOrderBtn" class="btn primary">Telegramga yuborish</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin Modal -->
+<div id="adminModal" class="modal-backdrop hidden" aria-hidden="true">
+  <div class="modal">
+    <div class="row" style="justify-content:space-between">
+      <h3 style="margin:0">Admin panel</h3>
+      <div class="pill">Frontend demo</div>
+    </div>
+
+    <div id="adminLoginArea">
+      <p class="small">Parol kiriting (standart: <b>admin123</b>). Kirgach “Security” bo‘limidan albatta almashtiring.</p>
+      <div class="row">
+        <input id="adminPass" type="password" placeholder="Parol" class="grow" />
+        <button id="adminLoginBtn" class="btn primary">Kirish</button>
+        <button id="adminCloseBtn" class="btn">Yopish</button>
+      </div>
+    </div>
+
+    <div id="adminPanel" class="hidden">
+      <div class="tabs" style="margin-top:8px">
+        <button class="btn small" data-tab="dash">Dashboard</button>
+        <button class="btn small" data-tab="packs">Paketlar</button>
+        <button class="btn small" data-tab="orders">Buyurtmalar</button>
+        <button class="btn small" data-tab="users">Foydalanuvchilar</button>
+        <button class="btn small" data-tab="promos">Promo-kodlar</button>
+        <button class="btn small" data-tab="cards">Karta raqamlari</button>
+        <button class="btn small" data-tab="appearance">Ko‘rinish</button>
+        <button class="btn small" data-tab="fake">Soxta sotuv</button>
+        <button class="btn small" data-tab="logs">Loglar</button>
+        <button class="btn small" data-tab="backup">Backup</button>
+        <button class="btn small danger" id="adminLogoutBtn">Chiqish</button>
+      </div>
+
+      <div id="tabsArea" style="margin-top:10px">
+        <!-- DASH -->
+        <div data-panel="dash">
+          <div class="grid">
+            <div class="panel stat">
+              <div class="small">Bugun</div><div id="dashToday" style="font-weight:900;font-size:22px">0</div>
+            </div>
+            <div class="panel stat">
+              <div class="small">Hafta</div><div id="dashWeek" style="font-weight:900;font-size:22px">0</div>
+            </div>
+            <div class="panel stat">
+              <div class="small">Oy</div><div id="dashMonth" style="font-weight:900;font-size:22px">0</div>
+            </div>
+            <div class="panel stat">
+              <div class="small">Umumiy UC</div><div id="dashUC" style="font-weight:900;font-size:22px">0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PACKS -->
+        <div data-panel="packs" class="hidden">
+          <div class="row">
+            <input id="packAmount" placeholder="Masalan: 60 UC" class="grow" />
+            <input id="packPrice" placeholder="Masalan: 12,000 so'm" class="grow" />
+            <input id="packTag" placeholder="TAG (TOP/MASHHUR)" class="grow" />
+            <button id="addPackBtn" class="btn primary">Qo‘shish</button>
+          </div>
+          <div class="panel" style="margin-top:8px;max-height:300px;overflow:auto">
+            <table id="packsTable">
+              <thead><tr><th>#</th><th>Amount</th><th>Price</th><th>Tag</th><th></th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ORDERS -->
+        <div data-panel="orders" class="hidden">
+          <div class="row">
+            <button id="refreshOrdersBtn" class="btn">Yangilash</button>
+            <button id="exportOrdersBtn" class="btn">Eksport</button>
+            <button id="clearCompletedBtn" class="btn">Bajarilganlarni tozalash</button>
+          </div>
+          <div class="panel" style="margin-top:8px;max-height:340px;overflow:auto">
+            <table id="ordersTable">
+              <thead><tr><th>ID</th><th>Paketlar</th><th>Qty</th><th>UID</th><th>Tel</th><th>Izoh</th><th>Vaqt</th><th>Status</th><th></th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- USERS -->
+        <div data-panel="users" class="hidden">
+          <div class="row small"><span>Buyurtmalardan avtomatik to‘planadi</span></div>
+          <div class="panel" style="margin-top:8px;max-height:340px;overflow:auto">
+            <table id="usersTable">
+              <thead><tr><th>UID</th><th>Tel</th><th>Oxirgi buyurtma</th><th>Holat</th><th></th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- PROMOS -->
+        <div data-panel="promos" class="hidden">
+          <div class="row">
+            <input id="promoCodeInput" placeholder="KOD (VIP10)" class="grow" />
+            <input id="promoValueInput" placeholder="Qiymat (0.10 = 10%)" class="grow" />
+            <button id="addPromoBtn" class="btn primary">Qo‘shish</button>
+          </div>
+          <div class="panel" style="margin-top:8px;max-height:300px;overflow:auto">
+            <table id="promosTable">
+              <thead><tr><th>Code</th><th>Value</th><th></th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- CARDS -->
+        <div data-panel="cards" class="hidden">
+          <div class="row">
+            <input id="cardName" placeholder="UZCARD/HUMO" class="grow" />
+            <input id="cardNumber" placeholder="5614 6887 0039 5675" class="grow" />
+            <input id="cardHolder" placeholder="Ism Familiya" class="grow" />
+            <button id="addCardBtn" class="btn primary">Qo‘shish</button>
+          </div>
+          <div class="panel" style="margin-top:8px;max-height:300px;overflow:auto">
+            <table id="cardsTable">
+              <thead><tr><th>Name</th><th>Number</th><th>Holder</th><th></th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- APPEARANCE -->
+        <div data-panel="appearance" class="hidden">
+          <div class="grid">
+            <div class="card">
+              <label class="small">Sarlavha</label>
+              <input id="setTitle" placeholder="PUBG MOBILE UC" />
+              <label class="small" style="margin-top:6px">Taglayn</label>
+              <input id="setTagline" placeholder="Tez va ishonchli yetkazib berish" />
+              <label class="small" style="margin-top:6px">Telegram link</label>
+              <input id="setTgLink" placeholder="https://t.me/username" />
+            </div>
+            <div class="card">
+              <label class="small">Fon rasmlari (vergul bilan ajrating)</label>
+              <textarea id="setBgList" rows="4" placeholder="https://...jpg, https://...jpg"></textarea>
+              <div class="small">Slideshow 8 soniyada avtomatik almashadi</div>
+            </div>
+            <div class="card">
+              <label class="small">Ranglar</label>
+              <input id="setAccent1" placeholder="#ff6b35" />
+              <input id="setAccent2" placeholder="#f7931e" style="margin-top:6px" />
+            </div>
+          </div>
+          <div class="row" style="margin-top:8px">
+            <button id="saveAppearanceBtn" class="btn primary">Saqlash</button>
+          </div>
+        </div>
+
+        <!-- FAKE SALES -->
+        <div data-panel="fake" class="hidden">
+          <div class="grid">
+            <div class="card">
+              <label class="small">Soxta sotuv yoqilsin</label>
+              <div class="row" style="margin-top:6px">
+                <input id="fakeEnabled" type="checkbox" /> <span class="small">Yoqish</span>
+              </div>
+              <label class="small" style="margin-top:6px">Interval (ms, default 3600000 = 1 soat)</label>
+              <input id="fakeInterval" placeholder="3600000" />
+              <div class="row" style="margin-top:8px">
+                <button id="fakeOnceBtn" class="btn">Bir marta ishga tushirish</button>
+                <button id="fakeResetBtn" class="btn">Taymerni qayta ishga tushirish</button>
+              </div>
+              <div class="small" id="fakeInfo" style="margin-top:6px"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- LOGS -->
+        <div data-panel="logs" class="hidden">
+          <div class="row">
+            <button id="clearLogsBtn" class="btn">Loglarni tozalash</button>
+            <button id="exportLogsBtn" class="btn">Eksport</button>
+          </div>
+          <div class="panel" style="margin-top:8px;max-height:340px;overflow:auto">
+            <table id="logsTable">
+              <thead><tr><th>Vaqt</th><th>Bo‘lim</th><th>Amal</th><th>Ma’lumot</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- BACKUP / SECURITY -->
+        <div data-panel="backup" class="hidden">
+          <div class="row">
+            <button id="exportAllBtn" class="btn">Eksport (backup.json)</button>
+            <input id="importFile" type="file" accept="application/json" />
+            <button id="resetStatsBtn" class="btn danger">Stats reset</button>
+          </div>
+          <div class="panel" style="margin-top:8px">
+            <h4 style="margin:0 0 6px">Security</h4>
+            <div class="row">
+              <input id="newAdminPass" type="password" placeholder="Yangi admin parol" class="grow" />
+              <button id="changePassBtn" class="btn primary">O‘zgartirish</button>
+            </div>
+            <div class="small" style="margin-top:6px">Parol brauzerda SHA-256 xesh ko‘rinishda saqlanadi (demo). Real tizimda server tarafida saqlash zarur.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toasts"></div>
+
+<script>
+/* =======================
+   UTILITIES
+======================= */
+const $ = (s,el=document)=>el.querySelector(s);
+const $$ = (s,el=document)=>[...el.querySelectorAll(s)];
+const save=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+const load=(k,d)=>{let v=localStorage.getItem(k); if(!v) return d; try{return JSON.parse(v)}catch{return d}};
+const now = ()=> new Date();
+const fmtNum = n => (n||0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+const toInt = s => Number((s||"").toString().replaceAll(",","").replace(/\D/g,""))||0;
+/* UUID fallback (crypto.randomUUID bo'lmagan holatlar uchun) */
+const UUID = ()=> (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : ('id_'+Date.now()+'_'+Math.random().toString(16).slice(2));
+const sha256 = async (str)=> {
+  const buf = new TextEncoder().encode(str);
+  const hash = await crypto.subtle.digest('SHA-256', buf);
+  return [...new Uint8Array(hash)].map(b=>b.toString(16).padStart(2,'0')).join('');
+};
+const toast=(msg,ms=2600)=>{const d=document.createElement('div');d.className='toast';d.textContent=msg;$('#toasts').appendChild(d);setTimeout(()=>d.remove(),ms)}
+
+/* =======================
+   STORAGE KEYS & DEFAULTS
+======================= */
+const K = {
+  ADMIN:'adminHash_v2',
+  PACKS:'packs_v2',
+  PROMOS:'promos_v2',
+  CARDS:'cards_v2',
+  ORDERS:'orders_v2',
+  USERS:'users_v2',
+  STATS:'stats_v2',
+  SETTINGS:'settings_v2',
+  LOGS:'logs_v2',
+  CART:'cart_v2'
+};
+
+async function ensureDefaults(){
+  if(!localStorage.getItem(K.ADMIN)){
+    localStorage.setItem(K.ADMIN, await sha256('admin123'));
+  }
+  if(!localStorage.getItem(K.PACKS)){
+    save(K.PACKS,[
+      {id:UUID(), amount:'30 UC', price:"8,000 so'm", tag:'YANGI'},
+      {id:UUID(), amount:'60 UC', price:"12,000 so'm", tag:'MASHHUR'},
+      {id:UUID(), amount:'120 UC', price:"24,000 so'm", tag:'TOP'},
+      {id:UUID(), amount:'325 UC', price:"60,000 so'm"}
+    ]);
+  }
+  if(!localStorage.getItem(K.PROMOS)) save(K.PROMOS,{VIP10:0.10, BAHROM15:0.15});
+  if(!localStorage.getItem(K.CARDS)) save(K.CARDS,[
+    {name:'UZCARD', number:'5614 6887 0039 5675', holder:'Mengliyev Bahrom'},
+    {name:'HUMO', number:'9860 1201 4526 4012', holder:'Mengliyev Bahrom'}
+  ]);
+  if(!localStorage.getItem(K.ORDERS)) save(K.ORDERS,[]);
+  if(!localStorage.getItem(K.USERS)) save(K.USERS,[]);
+  if(!localStorage.getItem(K.LOGS)) save(K.LOGS,[]);
+  if(!localStorage.getItem(K.STATS)) save(K.STATS,{orders:1500, uc:250000, daily:{}});
+  if(!localStorage.getItem(K.SETTINGS)) save(K.SETTINGS,{
+    title:'PUBG MOBILE UC',
+    tagline:"Tez va ishonchli yetkazib berish",
+    tg:"https://t.me/MengliyevBahrom",
+    bgList:[
+      "https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=1400&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1520975922371-6d0f1a3a2b37?q=80&w=1400&auto=format&fit=crop"
+    ],
+    accent1:'#ff6b35', accent2:'#f7931e',
+    fakeEnabled:true, fakeInterval:3600000, lastFake:0
+  });
+}
+function log(section, action, info){ const logs=load(K.LOGS,[]); logs.push({t:Date.now(),section,action,info}); save(K.LOGS,logs)}
+
+/* =======================
+   RUNTIME STATE
+======================= */
+let PACKS=[], PROMOS={}, CARDS=[], ORDERS=[], USERS=[], STATS={}, SETTINGS={}, CART=[];
+let SELECTED_PACK=null, SELECTED_PAY=null;
+let heroIdx=0, heroTimer=null, fakeTimer=null;
+
+/* =======================
+   RENDERERS (PUBLIC)
+======================= */
+function applyAppearance(){
+  $('#siteTitle').textContent = SETTINGS.title||'UC';
+  $('#siteTagline').textContent = SETTINGS.tagline||'';
+  $('#contactLink').href = SETTINGS.tg||'#';
+  document.documentElement.style.setProperty('--accent1', SETTINGS.accent1||'#ff6b35');
+  document.documentElement.style.setProperty('--accent2', SETTINGS.accent2||'#f7931e');
+  // slideshow
+  if(heroTimer) clearInterval(heroTimer);
+  const list = SETTINGS.bgList||[];
+  const setHero=()=>{ if(list.length){ $('#heroImg').src = list[heroIdx%list.length]; heroIdx++ } };
+  setHero();
+  heroTimer = setInterval(setHero, 8000);
+}
+function renderPacks(){
+  PACKS = load(K.PACKS, PACKS);
+  const grid = $('#packsGrid'); grid.innerHTML='';
+  PACKS.forEach(p=>{
+    const d = document.createElement('div'); d.className='card';
+    d.innerHTML = `
+      <div class="row" style="justify-content:space-between">
+        <div style="font-weight:900">${p.amount}</div>
+        ${p.tag?`<span class="pill">${p.tag}</span>`:''}
+      </div>
+      <div class="small" style="color:var(--accent2);margin-top:2px">${p.price}</div>
+      <div class="row" style="margin-top:8px">
+        <button class="btn primary">Sotib olish</button>
+        <button class="btn">Savatchaga</button>
+      </div>`;
+    const [buy,add] = d.querySelectorAll('button');
+    buy.addEventListener('click',()=>openBuyModal(p));
+    add.addEventListener('click',()=>{ addToCart(p); toast(`${p.amount} savatchaga qo‘shildi`) });
+    grid.appendChild(d);
+  });
+  renderPayButtons();
+}
+function renderRecent(){
+  const list = load(K.ORDERS,[]).slice(-8).reverse();
+  const box = $('#recentOrders'); box.innerHTML='';
+  list.forEach(o=>{
+    const totalUC = o.items.reduce((s,it)=> s + parseInt(it.amount.replace(/\D/g,''))*(it.qty||1),0);
+    const el = document.createElement('div'); el.className='card';
+    el.innerHTML = `
+      <div class="row" style="justify-content:space-between">
+        <div style="font-weight:900">${o.id.includes('fake')?'Soxta':'Real'} • ${o.status||'yangi'}</div>
+        <div class="small">${new Date(o.time).toLocaleString()}</div>
+      </div>
+      <div class="small">${o.items.map(i=>`${i.amount} x${i.qty||1}`).join(', ')}</div>
+      <div class="small">Jami UC: <b>${fmtNum(totalUC)}</b></div>`;
+    box.appendChild(el);
+  });
+}
+function renderStats(){
+  STATS = load(K.STATS, STATS);
+  $('#statOrders').textContent = fmtNum(STATS.orders||0);
+  $('#statUC').textContent = fmtNum(STATS.uc||0);
+  // today
+  const k = new Date().toISOString().slice(0,10);
+  const d = STATS.daily && STATS.daily[k] ? STATS.daily[k] : {orders:0, uc:0};
+  $('#statToday').textContent = fmtNum(d.orders||0);
+}
+
+/* =======================
+   CART
+======================= */
+function loadCart(){ CART = load(K.CART, []); updateCartUI() }
+function addToCart(p){
+  const it=CART.find(x=>x.amount===p.amount);
+  if(it) it.qty+=1; else CART.push({amount:p.amount, price:p.price, qty:1});
+  save(K.CART,CART); updateCartUI();
+}
+function changeQty(amount,delta){
+  const it=CART.find(x=>x.amount===amount);
+  if(!it) return;
+  it.qty+=delta;
+  if(it.qty<=0) CART=CART.filter(x=>x.amount!==amount);
+  save(K.CART,CART); updateCartUI();
+}
+function removeFromCart(amount){
+  CART=CART.filter(x=>x.amount!==amount);
+  save(K.CART,CART); updateCartUI();
+}
+function clearCart(){ CART=[]; save(K.CART,CART); updateCartUI() }
+
+/* --- FIXED: buttons destructuring --- */
+function updateCartUI(){
+  const body = $('#cartBody'); body.innerHTML='';
+  let total=0;
+  CART.forEach(it=>{
+    const line = toInt(it.price)*it.qty; total+=line;
+    const row = document.createElement('div'); row.className='row'; row.style.justifyContent='space-between';
+    row.innerHTML = `
+      <div style="font-weight:800">${it.amount}</div>
+      <div class="row">
+        <button class="btn small">−</button>
+        <div style="min-width:28px;text-align:center">${it.qty}</div>
+        <button class="btn small">+</button>
+        <div style="font-weight:800">${fmtNum(line)}</div>
+        <button class="btn small">✖</button>
+      </div>`;
+    const btns = row.querySelectorAll('button');
+    const [minusBtn, plusBtn, removeBtn] = btns; /* <— to'g'ri tartibda 3 ta tugma bor */
+    minusBtn.addEventListener('click',()=>changeQty(it.amount,-1));
+    plusBtn.addEventListener('click',()=>changeQty(it.amount,1));
+    removeBtn.addEventListener('click',()=>removeFromCart(it.amount));
+    body.appendChild(row);
+  });
+  $('#cartTotal').textContent = fmtNum(total);
+  const count = CART.reduce((s,x)=>s+x.qty,0);
+  $('#cartCountTop').textContent = count;
+}
+
+/* =======================
+   BUY NOW MODAL
+======================= */
+function openBuyModal(p){
+  SELECTED_PACK=p; SELECTED_PAY=null;
+  $('#selectedPackTitle').textContent = p.amount;
+  $('#selectedPackPrice').textContent = p.price;
+  $('#promoInput').value=''; $('#promoInfo').textContent='';
+  $('#playerId').value=''; $('#phone').value=''; $('#note').value='';
+  $('#buyModal').style.display='flex'; $('#buyModal').setAttribute('aria-hidden','false');
+}
+$('#closeBuyModal').addEventListener('click',()=> $('#buyModal').style.display='none');
+
+function renderPayButtons(){
+  CARDS = load(K.CARDS, CARDS);
+  const box = $('#payButtons'); box.innerHTML='';
+  CARDS.forEach(c=>{
+    const b = document.createElement('button'); b.className='btn'; b.textContent=`${c.name}`;
+    b.addEventListener('click',()=>{ SELECTED_PAY=c.name; toast(`${c.name} tanlandi`) });
+    box.appendChild(b);
+  });
+}
+
+$('#orderCartBtn').addEventListener('click',()=>{
+  if(CART.length===0) return toast("Savatcha bo‘sh");
+  // Create order from cart
+  const items = CART.map(x=>({amount:x.amount, price:x.price, qty:x.qty}));
+  const order = { id:'ord_'+Date.now(), items, qty:CART.reduce((s,x)=>s+x.qty,0), uid:'-', phone:'-', note:'-', time:Date.now(), status:'yangi' };
+  const arr = load(K.ORDERS,[]); arr.push(order); save(K.ORDERS,arr);
+  items.forEach(it=>incStatsFromPack(it.amount, it.qty));
+  updateUsersFromOrder(order);
+  clearCart(); renderRecent(); toast("Buyurtma saqlandi (cart)");
+  log('orders','create_from_cart',JSON.stringify(order));
+});
+
+$('#sendOrderBtn').addEventListener('click',()=>{
+  if(!SELECTED_PACK) return;
+  const uid = $('#playerId').value.trim();
+  if(!/^[0-9]{6,}$/.test(uid)) return alert("To‘g‘ri PUBG ID kiriting.");
+  const phone = $('#phone').value.trim() || '-';
+  const note = $('#note').value.trim() || '-';
+  const promo = $('#promoInput').value.trim().toUpperCase();
+  let applied='';
+  PROMOS = load(K.PROMOS, PROMOS);
+  if(promo && PROMOS[promo]){
+    applied = `Promo ${promo} ${(PROMOS[promo]*100).toFixed(0)}% qo‘llandi`;
+    $('#promoInfo').textContent = applied;
+  }
+  if(!SELECTED_PAY){ return alert("To‘lov turini tanlang (UZCARD/HUMO...)"); }
+
+  const order = { id:'ord_'+Date.now(), items:[{amount:SELECTED_PACK.amount, price:SELECTED_PACK.price, qty:1}], qty:1, uid, phone, note, time:Date.now(), status:'yangi', pay:SELECTED_PAY, promo };
+  const arr = load(K.ORDERS,[]); arr.push(order); save(K.ORDERS,arr);
+  incStatsFromPack(SELECTED_PACK.amount,1);
+  updateUsersFromOrder(order);
+  renderRecent(); $('#buyModal').style.display='none';
+  toast("Buyurtma saqlandi (single)");
+  log('orders','create_from_modal',JSON.stringify(order));
+});
+
+/* =======================
+   USERS
+======================= */
+function updateUsersFromOrder(order){
+  let users = load(K.USERS,[]);
+  if(order.uid && order.uid !== '-'){
+    const ex = users.find(u=>u.uid===order.uid);
+    const rec = {uid:order.uid, phone:order.phone||'-', last:order.time, status: (ex?ex.status:'normal')};
+    if(ex) users = users.map(u=>u.uid===order.uid?rec:u); else users.push(rec);
+    save(K.USERS,users);
+  }
+}
+
+/* =======================
+   STATS
+======================= */
+function incStatsFromPack(amountStr, qty=1){
+  let s=load(K.STATS,{orders:0,uc:0,daily:{}});
+  const ucEach = parseInt((amountStr||"").replace(/\D/g,''))||0;
+  s.orders = Number(s.orders||0) + qty;
+  s.uc = Number(s.uc||0) + (ucEach*qty);
+  const key = new Date().toISOString().slice(0,10);
+  s.daily[key] = s.daily[key] || {orders:0, uc:0};
+  s.daily[key].orders += qty;
+  s.daily[key].uc += (ucEach*qty);
+  save(K.STATS,s); renderStats(); renderDash();
+}
+
+/* =======================
+   ADMIN AUTH + PANEL
+======================= */
+const adminModal = $('#adminModal');
+$('#openAdminBtn').addEventListener('click',()=>{
+  adminModal.classList.remove('hidden'); adminModal.style.display='flex'; adminModal.setAttribute('aria-hidden','false');
+  $('#adminLoginArea').style.display='block'; $('#adminPanel').classList.add('hidden');
+});
+$('#adminCloseBtn').addEventListener('click',()=>{ adminModal.classList.add('hidden'); adminModal.style.display='none'; });
+$('#adminLogoutBtn').addEventListener('click',()=>{ $('#adminPanel').classList.add('hidden'); $('#adminLoginArea').style.display='block'; });
+
+$('#adminLoginBtn').addEventListener('click', async ()=>{
+  const pass = $('#adminPass').value || '';
+  const stored = localStorage.getItem(K.ADMIN);
+  if(await sha256(pass) === stored){
+    $('#adminLoginArea').style.display='none'; $('#adminPanel').classList.remove('hidden');
+    loadAdminData(); toast("Admin kirdi"); log('auth','login','success');
+  } else { alert("Parol noto‘g‘ri"); log('auth','login','fail'); }
+});
+
+$$( '[data-tab]' ).forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const tab = btn.getAttribute('data-tab');
+    $$('[data-panel]').forEach(p=>p.classList.add('hidden'));
+    $(`[data-panel="${tab}"]`).classList.remove('hidden');
+    if(tab==='packs') renderAdminPacks();
+    if(tab==='orders') renderAdminOrders();
+    if(tab==='users') renderAdminUsers();
+    if(tab==='promos') renderAdminPromos();
+    if(tab==='cards') renderAdminCards();
+    if(tab==='appearance') adminLoadAppearance();
+    if(tab==='fake') adminLoadFake();
+    if(tab==='logs') renderLogs();
+    if(tab==='dash') renderDash();
+  });
+});
+
+/* DASH */
+function renderDash(){
+  const s=load(K.STATS,{orders:0,uc:0,daily:{}});
+  const todayKey = new Date().toISOString().slice(0,10);
+  const weekAgo = Date.now()-7*86400000, monthAgo=Date.now()-30*86400000;
+  let week=0, month=0;
+  Object.keys(s.daily||{}).forEach(k=>{
+    const t = new Date(k+'T00:00:00').getTime();
+    if(t>=weekAgo) week += (s.daily[k]?.orders||0);
+    if(t>=monthAgo) month += (s.daily[k]?.orders||0);
+  });
+  $('#dashToday').textContent = fmtNum((s.daily[todayKey]?.orders)||0);
+  $('#dashWeek').textContent = fmtNum(week);
+  $('#dashMonth').textContent = fmtNum(month);
+  $('#dashUC').textContent = fmtNum(s.uc||0);
+}
+
+/* PACKS (Admin) */
+function renderAdminPacks(){
+  PACKS = load(K.PACKS, PACKS);
+  const tb = $('#packsTable tbody'); tb.innerHTML='';
+  PACKS.forEach((p,i)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML = `<td>${i+1}</td><td>${p.amount}</td><td>${p.price}</td><td>${p.tag||''}</td>
+    <td><button class="btn small" data-edit="${p.id}">Tahrir</button> <button class="btn small danger" data-del="${p.id}">O‘chirish</button> <button class="btn small" data-up="${p.id}">↑</button> <button class="btn small" data-down="${p.id}">↓</button></td>`;
+    tb.appendChild(tr);
+  });
+  tb.querySelectorAll('[data-edit]').forEach(b=>b.addEventListener('click',(e)=>{
+    const id = e.currentTarget.getAttribute('data-edit');
+    const p = PACKS.find(x=>x.id===id);
+    $('#packAmount').value = p.amount; $('#packPrice').value = p.price; $('#packTag').value = p.tag||'';
+    $('#addPackBtn').textContent='Saqlash';
+    $('#addPackBtn').onclick = ()=>{
+      p.amount=$('#packAmount').value.trim();
+      p.price=$('#packPrice').value.trim();
+      p.tag=$('#packTag').value.trim();
+      save(K.PACKS,PACKS); renderAdminPacks(); renderPacks();
+      $('#packAmount').value=''; $('#packPrice').value=''; $('#packTag').value='';
+      $('#addPackBtn').textContent='Qo‘shish'; $('#addPackBtn').onclick=addPackHandler;
+      log('packs','edit',JSON.stringify(p));
+    };
+  }));
+  tb.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',(e)=>{
+    const id = e.currentTarget.getAttribute('data-del');
+    if(confirm('O‘chirishni tasdiqlang')){ PACKS=PACKS.filter(x=>x.id!==id); save(K.PACKS,PACKS); renderAdminPacks(); renderPacks(); log('packs','delete',id); }
+  }));
+  tb.querySelectorAll('[data-up]').forEach(b=>b.addEventListener('click',(e)=>{
+    const id=e.currentTarget.getAttribute('data-up'); const i=PACKS.findIndex(x=>x.id===id);
+    if(i>0){ [PACKS[i-1],PACKS[i]]=[PACKS[i],PACKS[i-1]]; save(K.PACKS,PACKS); renderAdminPacks(); renderPacks(); log('packs','reorder','up '+id); }
+  }));
+  tb.querySelectorAll('[data-down]').forEach(b=>b.addEventListener('click',(e)=>{
+    const id=e.currentTarget.getAttribute('data-down'); const i=PACKS.findIndex(x=>x.id===id);
+    if(i<PACKS.length-1){ [PACKS[i+1],PACKS[i]]=[PACKS[i],PACKS[i+1]]; save(K.PACKS,PACKS); renderAdminPacks(); renderPacks(); log('packs','reorder','down '+id); }
+  }));
+}
+const addPackHandler=()=>{
+  const amount=$('#packAmount').value.trim(), price=$('#packPrice').value.trim(), tag=$('#packTag').value.trim();
+  if(!amount||!price) return alert("Amount va price kiritilsin");
+  PACKS.push({id:UUID(), amount, price, tag});
+  save(K.PACKS,PACKS); renderAdminPacks(); renderPacks();
+  $('#packAmount').value=''; $('#packPrice').value=''; $('#packTag').value=''; log('packs','add',amount);
+};
+$('#addPackBtn').addEventListener('click',addPackHandler);
+
+/* ORDERS (Admin) */
+function renderAdminOrders(){
+  ORDERS = load(K.ORDERS, ORDERS);
+  const tb=$('#ordersTable tbody'); tb.innerHTML='';
+  ORDERS.slice().reverse().forEach(o=>{
+    const tr = document.createElement('tr');
+    const items = o.items.map(i=> i.amount+' x'+(i.qty||1)).join(', ');
+    tr.innerHTML = `<td>${o.id}</td><td>${items}</td><td>${o.qty||1}</td><td>${o.uid||'-'}</td><td>${o.phone||'-'}</td><td>${o.note||'-'}</td><td>${new Date(o.time).toLocaleString()}</td>
+    <td>
+      <select data-status="${o.id}">
+        ${['yangi','to‘landi','yuborildi','bekor'].map(s=>`<option ${o.status===s?'selected':''} value="${s}">${s}</option>`).join('')}
+      </select>
+    </td>
+    <td><button class="btn small danger" data-del="${o.id}">O‘chirish</button></td>`;
+    tb.appendChild(tr);
+  });
+  tb.querySelectorAll('[data-status]').forEach(sel=>sel.addEventListener('change',(e)=>{
+    const id=e.currentTarget.getAttribute('data-status'), val=e.currentTarget.value;
+    ORDERS = ORDERS.map(o=>o.id===id?{...o,status:val}:o); save(K.ORDERS,ORDERS); toast('Status yangilandi'); log('orders','status',id+' => '+val);
+  }));
+  tb.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',(e)=>{
+    const id=e.currentTarget.getAttribute('data-del'); if(confirm('Buyurtma o‘chiraladimi?')){
+      ORDERS=ORDERS.filter(o=>o.id!==id); save(K.ORDERS,ORDERS); renderAdminOrders(); log('orders','delete',id);
+    }
+  }));
+}
+$('#refreshOrdersBtn').addEventListener('click',renderAdminOrders);
+$('#exportOrdersBtn').addEventListener('click',()=>downloadJSON(load(K.ORDERS,[]),'orders.json'));
+$('#clearCompletedBtn').addEventListener('click',()=>{
+  ORDERS=load(K.ORDERS,[]).filter(o=>o.status!=='yuborildi' && o.status!=='bekor');
+  save(K.ORDERS,ORDERS); renderAdminOrders(); toast('Bajarilgan/ bekor qilingan buyurtmalar tozalandi'); log('orders','clear_completed','ok');
+});
+
+/* USERS (Admin) */
+function renderAdminUsers(){
+  USERS = load(K.USERS, USERS);
+  const tb=$('#usersTable tbody'); tb.innerHTML='';
+  USERS.slice().reverse().forEach(u=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${u.uid}</td><td>${u.phone||'-'}</td><td>${new Date(u.last).toLocaleString()}</td>
+    <td>${u.status||'normal'}</td>
+    <td><button class="btn small" data-edit="${u.uid}">Tahrir</button> <button class="btn small danger" data-block="${u.uid}">${u.status==='blocked'?'Blokdan chiqar':'Blokla'}</button></td>`;
+    tb.appendChild(tr);
+  });
+  tb.querySelectorAll('[data-edit]').forEach(b=>b.addEventListener('click',(e)=>{
+    const uid=e.currentTarget.getAttribute('data-edit'); const u=USERS.find(x=>x.uid===uid);
+    const np = prompt('Yangi telefon raqam:', u.phone||'');
+    if(np!==null){ USERS=USERS.map(x=>x.uid===uid?{...x,phone:np}:x); save(K.USERS,USERS); renderAdminUsers(); log('users','edit',uid); }
+  }));
+  tb.querySelectorAll('[data-block]').forEach(b=>b.addEventListener('click',(e)=>{
+    const uid=e.currentTarget.getAttribute('data-block'); USERS=USERS.map(x=>x.uid===uid?{...x,status:(x.status==='blocked'?'normal':'blocked')}:x); save(K.USERS,USERS); renderAdminUsers(); log('users','block_toggle',uid);
+  }));
+}
+
+/* PROMOS (Admin) */
+function renderAdminPromos(){
+  PROMOS = load(K.PROMOS, PROMOS);
+  const tb=$('#promosTable tbody'); tb.innerHTML='';
+  Object.keys(PROMOS).forEach(code=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${code}</td><td>${PROMOS[code]}</td><td><button class="btn small danger" data-del="${code}">O‘chirish</button></td>`;
+    tb.appendChild(tr);
+  });
+  tb.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',(e)=>{
+    const code=e.currentTarget.getAttribute('data-del'); delete PROMOS[code]; save(K.PROMOS,PROMOS); renderAdminPromos(); log('promos','delete',code);
+  }));
+}
+$('#addPromoBtn').addEventListener('click',()=>{
+  const code=$('#promoCodeInput').value.trim().toUpperCase(); const v=parseFloat($('#promoValueInput').value);
+  if(!code || isNaN(v)) return alert("To‘g‘ri qiymat kiriting");
+  PROMOS[code]=v; save(K.PROMOS,PROMOS); renderAdminPromos(); $('#promoCodeInput').value=''; $('#promoValueInput').value='';
+  log('promos','add',code+'='+v);
+});
+
+/* CARDS (Admin) */
+function renderAdminCards(){
+  CARDS = load(K.CARDS, CARDS);
+  const tb=$('#cardsTable tbody'); tb.innerHTML='';
+  CARDS.forEach((c,i)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${c.name}</td><td>${c.number}</td><td>${c.holder}</td><td><button class="btn small danger" data-del="${i}">O‘chirish</button></td>`;
+    tb.appendChild(tr);
+  });
+  tb.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',(e)=>{
+    const i=Number(e.currentTarget.getAttribute('data-del')); CARDS.splice(i,1); save(K.CARDS,CARDS); renderAdminCards(); renderPayButtons(); log('cards','delete','index '+i);
+  }));
+}
+$('#addCardBtn').addEventListener('click',()=>{
+  const n=$('#cardName').value.trim(), num=$('#cardNumber').value.trim(), h=$('#cardHolder').value.trim();
+  if(!n || !num) return alert("Karta nomi va raqami kerak");
+  CARDS.push({name:n, number:num, holder:h}); save(K.CARDS,CARDS); renderAdminCards(); renderPayButtons();
+  $('#cardName').value=''; $('#cardNumber').value=''; $('#cardHolder').value=''; log('cards','add',n);
+});
+
+/* APPEARANCE (Admin) */
+function adminLoadAppearance(){
+  $('#setTitle').value = SETTINGS.title||'';
+  $('#setTagline').value = SETTINGS.tagline||'';
+  $('#setTgLink').value = SETTINGS.tg||'';
+  $('#setBgList').value = (SETTINGS.bgList||[]).join(', ');
+  $('#setAccent1').value = SETTINGS.accent1||'#ff6b35';
+  $('#setAccent2').value = SETTINGS.accent2||'#f7931e';
+}
+$('#saveAppearanceBtn').addEventListener('click',()=>{
+  SETTINGS.title=$('#setTitle').value.trim()||SETTINGS.title;
+  SETTINGS.tagline=$('#setTagline').value.trim()||SETTINGS.tagline;
+  SETTINGS.tg=$('#setTgLink').value.trim()||SETTINGS.tg;
+  SETTINGS.bgList=$('#setBgList').value.split(',').map(s=>s.trim()).filter(Boolean);
+  SETTINGS.accent1=$('#setAccent1').value.trim()||SETTINGS.accent1;
+  SETTINGS.accent2=$('#setAccent2').value.trim()||SETTINGS.accent2;
+  save(K.SETTINGS,SETTINGS); applyAppearance(); toast("Ko‘rinish saqlandi"); log('appearance','save','ok');
+});
+
+/* FAKE SALES (Admin) */
+function adminLoadFake(){
+  $('#fakeEnabled').checked = !!SETTINGS.fakeEnabled;
+  $('#fakeInterval').value = SETTINGS.fakeInterval || 3600000;
+  $('#fakeInfo').textContent = `So‘nggi: ${SETTINGS.lastFake?new Date(SETTINGS.lastFake).toLocaleString():'—'}`;
+}
+$('#fakeEnabled').addEventListener('change',(e)=>{
+  SETTINGS.fakeEnabled = e.target.checked; save(K.SETTINGS,SETTINGS); restartFake(); log('fake','toggle',String(SETTINGS.fakeEnabled));
+});
+$('#fakeInterval').addEventListener('change',(e)=>{
+  SETTINGS.fakeInterval = Number(e.target.value)||3600000; save(K.SETTINGS,SETTINGS); restartFake(); log('fake','interval',String(SETTINGS.fakeInterval));
+});
+$('#fakeOnceBtn').addEventListener('click',()=>{ createFakeOrder(); renderAdminOrders(); });
+$('#fakeResetBtn').addEventListener('click',()=> restartFake());
+
+function createFakeOrder(){
+  if(!SETTINGS.fakeEnabled) return;
+  const packs = load(K.PACKS,[]);
+  if(!packs.length) return;
+  const p = packs[Math.floor(Math.random()*packs.length)];
+  const order = { id:'fake_'+Date.now(), items:[{amount:p.amount, price:p.price, qty:1}], qty:1, uid:'anon', phone:'-', note:'fake', time:Date.now(), status:'yuborildi', pay:'—' };
+  const arr = load(K.ORDERS,[]); arr.push(order); save(K.ORDERS,arr);
+  incStatsFromPack(p.amount,1);
+  SETTINGS.lastFake = Date.now(); save(K.SETTINGS,SETTINGS);
+  renderRecent(); toast("Soxta buyurtma yaratildi");
+  log('fake','create',p.amount);
+}
+function startFake(){
+  if(fakeTimer) clearInterval(fakeTimer);
+  if(SETTINGS.fakeEnabled){
+    fakeTimer = setInterval(()=> createFakeOrder(), SETTINGS.fakeInterval || 3600000);
+  }
+}
+function restartFake(){ startFake(); adminLoadFake(); }
+
+/* LOGS (Admin) */
+function renderLogs(){
+  const logs = load(K.LOGS,[]);
+  const tb=$('#logsTable tbody'); tb.innerHTML='';
+  logs.slice().reverse().forEach(l=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${new Date(l.t).toLocaleString()}</td><td>${l.section}</td><td>${l.action}</td><td class="small">${(l.info||'').toString().slice(0,120)}</td>`;
+    tb.appendChild(tr);
+  });
+}
+$('#clearLogsBtn').addEventListener('click',()=>{ if(confirm('Loglarni tozalaymizmi?')){ save(K.LOGS,[]); renderLogs(); }});
+$('#exportLogsBtn').addEventListener('click',()=>downloadJSON(load(K.LOGS,[]),'logs.json'));
+
+/* BACKUP & SECURITY */
+function downloadJSON(obj,name){ const blob=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url;a.download=name;a.click(); URL.revokeObjectURL(url); }
+$('#exportAllBtn').addEventListener('click',()=>{
+  const dump = {
+    packs:load(K.PACKS,[]), promos:load(K.PROMOS,{}), cards:load(K.CARDS,[]),
+    orders:load(K.ORDERS,[]), users:load(K.USERS,[]), stats:load(K.STATS,{}),
+    settings:load(K.SETTINGS,{}), logs:load(K.LOGS,[])
+  };
+  downloadJSON(dump,'backup_store.json'); log('backup','export','all');
+});
+$('#importFile').addEventListener('change',(e)=>{
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader(); r.onload=()=>{
+    try{
+      const d=JSON.parse(r.result);
+      if(d.packs) save(K.PACKS,d.packs);
+      if(d.promos) save(K.PROMOS,d.promos);
+      if(d.cards) save(K.CARDS,d.cards);
+      if(d.orders) save(K.ORDERS,d.orders);
+      if(d.users) save(K.USERS,d.users);
+      if(d.stats) save(K.STATS,d.stats);
+      if(d.settings) save(K.SETTINGS,d.settings);
+      if(d.logs) save(K.LOGS,d.logs);
+      PACKS=d.packs||PACKS; PROMOS=d.promos||PROMOS; CARDS=d.cards||CARDS; ORDERS=d.orders||ORDERS; USERS=d.users||USERS; STATS=d.stats||STATS; SETTINGS=d.settings||SETTINGS;
+      applyAppearance(); renderAllPublic(); log('backup','import','ok');
+      toast("Import bajarildi");
+    }catch{ alert("JSON o‘qishda xato"); }
+  };
+  r.readAsText(f);
+});
+$('#resetStatsBtn').addEventListener('click',()=>{
+  if(confirm('Statistikani 0 ga tushiraylikmi?')){
+    save(K.STATS,{orders:0, uc:0, daily:{}}); renderStats(); renderDash(); log('stats','reset','ok');
+  }
+});
+$('#changePassBtn').addEventListener('click', async ()=>{
+  const np=$('#newAdminPass').value.trim(); if(!np) return alert('Parol bo‘sh bo‘lmasin');
+  localStorage.setItem(K.ADMIN, await sha256(np)); $('#newAdminPass').value=''; toast('Parol o‘zgartirildi'); log('auth','change_pass','ok');
+});
+
+/* =======================
+   OPEN/CLOSE UI
+======================= */
+$('#openCartBtn').addEventListener('click',()=> $('#cartDrawer').classList.remove('hidden'));
+$('#closeCartBtn').addEventListener('click',()=> $('#cartDrawer').classList.add('hidden'));
+document.getElementById('adminModal').addEventListener('click',(e)=>{ if(e.target===document.getElementById('adminModal')){ adminModal.classList.add('hidden'); adminModal.style.display='none'; }});
+document.getElementById('buyModal').addEventListener('click',(e)=>{ if(e.target===document.getElementById('buyModal')) $('#buyModal').style.display='none' });
+$('#clearCartBtn').addEventListener('click',()=>{ clearCart(); toast('Savatcha tozalandi') });
+
+/* =======================
+   BOOT
+======================= */
+(async function init(){
+  await ensureDefaults();
+  PACKS=load(K.PACKS,[]); PROMOS=load(K.PROMOS,{}); CARDS=load(K.CARDS,[]); ORDERS=load(K.ORDERS,[]);
+  USERS=load(K.USERS,[]); STATS=load(K.STATS,{}); SETTINGS=load(K.SETTINGS,{});
+  applyAppearance();
+  renderAllPublic();
+  startFake();
+})();
+
+function renderAllPublic(){
+  renderPacks(); renderRecent(); renderStats(); loadCart();
+  // contact link update
+  $('#contactLink').href = SETTINGS.tg || '#';
+}
+
+/* =======================
+   EXPORT HELPERS FOR ADMIN
+======================= */
+function loadAdminData(){
+  PACKS=load(K.PACKS,PACKS); PROMOS=load(K.PROMOS,PROMOS); CARDS=load(K.CARDS,CARDS); ORDERS=load(K.ORDERS,ORDERS);
+  USERS=load(K.USERS,USERS); STATS=load(K.STATS,STATS); SETTINGS=load(K.SETTINGS,SETTINGS);
+  renderDash(); renderAdminPacks(); renderAdminOrders(); renderAdminUsers(); renderAdminPromos(); renderAdminCards(); adminLoadAppearance(); adminLoadFake(); renderLogs();
+}
+</script>
+</body>
+</html>
