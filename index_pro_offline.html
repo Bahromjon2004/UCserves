@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PUBG Mobile UC — Admin + Store</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0b0f14;
+      --card:#0f1720;
+      --muted:#9aa3b2;
+      --text:#eef2f7;
+      --accent1:#ff6b35;
+      --accent2:#f7931e;
+      --glass: rgba(255,255,255,0.06);
+      --ring: rgba(45,212,191,.20);
+      --shadow: 0 12px 40px rgba(2,6,23,.6);
+      --glass-border: rgba(255,255,255,.06);
+    }
+    html,body{ height:100%; margin:0; font-family:Inter,system-ui,Arial; background:linear-gradient(180deg,#061018,#091426); color:var(--text); -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+    .container{ max-width:1200px; margin:0 auto; padding:20px; }
+    .topbar{ display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:18px; }
+    .logo{ display:flex; gap:12px; align-items:center; }
+    .logo .badge{ width:44px; height:44px; background:linear-gradient(90deg,var(--accent1),var(--accent2)); display:grid; place-items:center; border-radius:10px; color:#111; font-weight:900; }
+    .actions{ display:flex; gap:8px; align-items:center; }
+    .btn{ padding:8px 12px; border-radius:10px; background:rgba(255,255,255,0.04); color:var(--text); border:1px solid rgba(255,255,255,0.06); cursor:pointer; font-weight:700; }
+    .btn.primary{ background:linear-gradient(90deg,var(--accent1),var(--accent2)); color:#111; border:none; box-shadow:0 8px 30px rgba(247,147,30,0.12); }
+    /* rest is similar to previous - simplified for brevity */
+    .panel{ background:rgba(255,255,255,0.02); padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.04); box-shadow:var(--shadow); }
+    .grid{ display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin-top:14px; }
+    .card{ padding:12px; border-radius:12px; position:relative; }
+    .drawer{ position:fixed; right:12px; bottom:12px; width:360px; max-width:calc(100% - 24px); background:var(--card); border-radius:12px; padding:12px; display:flex; flex-direction:column; gap:8px; z-index:60; border:1px solid rgba(255,255,255,0.04); }
+    .hidden{ display:none; }
+    .modal-backdrop{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:200; background:rgba(2,6,23,0.6); }
+    .modal{ width:min(900px,96vw); background:var(--card); padding:16px; border-radius:10px; border:1px solid rgba(255,255,255,0.04); max-height:90vh; overflow:auto; }
+    input, select, textarea{ background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.04); color:var(--text); padding:8px 10px; border-radius:8px; width:100%; box-sizing:border-box; }
+    table{ width:100%; border-collapse:collapse; }
+    th,td{ padding:8px 6px; border-bottom:1px solid rgba(255,255,255,0.03); text-align:left; font-size:14px; }
+    .small{ font-size:13px; color:var(--muted); }
+    .flex{ display:flex; gap:8px; align-items:center; }
+    .admin-badge{ padding:6px 10px; border-radius:8px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.04); }
+    .danger{ background:linear-gradient(90deg,#ef4444,#f97316); color:#111; }
+    @media (max-width:760px){ .drawer{ left:12px; right:12px; width:auto; } .grid{ grid-template-columns: repeat(2,1fr); } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="topbar">
+      <div class="logo">
+        <div class="badge">UC</div>
+        <div>
+          <div style="font-weight:900">PUBG MOBILE UC</div>
+          <div class="small">Admin panel bilan boshqarish</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="openAdminBtn" class="btn">Admin</button>
+        <button id="openCartBtn" class="btn">🛒 Savatcha (<span id="cartCountTop">0</span>)</button>
+        <a class="btn primary" href="https://t.me/MengliyevBahrom" target="_blank" rel="noopener">📨 Operator</a>
+      </div>
+    </header>
+
+    <!-- Main store (kept simple) -->
+    <main>
+      <section class="panel">
+        <h2>Do'kon</h2>
+        <div id="storeArea">
+          <div class="grid" id="grid"></div>
+        </div>
+      </section>
+
+      <section style="margin-top:12px;">
+        <div class="panel">
+          <h3>Statistika</h3>
+          <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:8px;">
+            <div class="panel">
+              <div style="font-weight:900; font-size:20px" id="statOrders">0</div>
+              <div class="small">Jami buyurtmalar</div>
+            </div>
+            <div class="panel">
+              <div style="font-weight:900; font-size:20px" id="statUC">0</div>
+              <div class="small">Sotilgan UC</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Cart Drawer -->
+  <div id="drawer" class="drawer hidden" role="dialog" aria-label="Cart">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <div style="font-weight:900">🛒 Savatcha</div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <div id="cartCountBadge" style="font-weight:800">0</div>
+        <button id="closeDrawerBtn" class="btn">✖</button>
+      </div>
+    </div>
+    <div id="cartBody" style="max-height:260px; overflow:auto;"></div>
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <div><strong>Jami:</strong></div>
+      <div><strong id="cartTotal">0</strong> <span class="small">so'm</span></div>
+    </div>
+    <div style="display:flex; gap:8px; margin-top:8px;">
+      <button id="orderCart" class="btn primary">🚀 Barchasini Telegramga yuborish</button>
+      <button id="clearCartBtn" class="btn">Tozalash</button>
+    </div>
+  </div>
+
+  <!-- Modal basic -->
+  <div id="modalBackdrop" class="modal-backdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true">
+      <h3 id="modalTitle">Buyurtma ma'lumoti</h3>
+
+      <div style="margin-top:8px;">
+        <label><strong>🔢 PUBG ID</strong></label>
+        <input id="playerId" placeholder="1234567890" />
+      </div>
+      <div style="margin-top:8px;">
+        <label><strong>📝 Izoh</strong></label>
+        <textarea id="note" rows="3"></textarea>
+      </div>
+
+      <div style="display:flex; gap:8px; margin-top:8px;">
+        <button class="btn" data-pay="UZCARD">UZCARD</button>
+        <button class="btn" data-pay="HUMO">HUMO</button>
+      </div>
+
+      <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:12px;">
+        <button id="closeModalBtn" class="btn">Yopish</button>
+        <button id="sendTg" class="btn primary">Telegramga yuborish</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Modal -->
+  <div id="adminModal" class="modal-backdrop hidden" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3>Admin panel</h3>
+        <div class="admin-badge">Admin</div>
+      </div>
+
+      <div id="adminArea" style="margin-top:12px;">
+        <!-- If not logged in, show login -->
+        <div id="adminLoginArea">
+          <p class="small">Admin sifatida kirish uchun parol kiriting. Dastlabki parol: <strong>admin123</strong> (kirgach darhol o'zgartiring)</p>
+          <input id="adminPass" type="password" placeholder="Parol" />
+          <div style="display:flex; gap:8px; margin-top:8px;">
+            <button id="adminLoginBtn" class="btn primary">Kirish</button>
+            <button id="adminCloseBtn" class="btn">Bekor</button>
+          </div>
+        </div>
+
+        <div id="adminPanelArea" class="hidden" style="margin-top:12px;">
+          <!-- Tabs -->
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn" data-admin-tab="packs">Paketlar</button>
+            <button class="btn" data-admin-tab="promos">Promo kodlar</button>
+            <button class="btn" data-admin-tab="cards">Karta raqamlar</button>
+            <button class="btn" data-admin-tab="orders">Buyurtmalar</button>
+            <button class="btn" data-admin-tab="settings">Sozlamalar</button>
+            <button id="adminLogoutBtn" class="btn danger">Chiqish</button>
+          </div>
+
+          <div id="adminTabs" style="margin-top:12px;">
+            <!-- PACKS -->
+            <div data-admin-panel="packs" class="admin-tab">
+              <h4>Paketlar</h4>
+              <div style="display:flex; gap:8px; margin-bottom:8px;">
+                <input id="packAmount" placeholder="Masalan: 120 UC" />
+                <input id="packPrice" placeholder="Masalan: 24,000 so'm" />
+                <input id="packTag" placeholder="TAG (MASHHUR, TOP...)" />
+                <button id="addPackBtn" class="btn primary">Qo'shish</button>
+              </div>
+              <div style="max-height:260px; overflow:auto;">
+                <table id="packsTable">
+                  <thead><tr><th>Amount</th><th>Price</th><th>Tag</th><th>Actions</th></tr></thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- PROMOS -->
+            <div data-admin-panel="promos" class="admin-tab hidden">
+              <h4>Promo kodlar</h4>
+              <div style="display:flex; gap:8px; margin-bottom:8px;">
+                <input id="promoCodeInput" placeholder="KOD" style="width:30%;" />
+                <input id="promoValueInput" placeholder="Qiymat (0.10 = 10%)" style="width:30%;" />
+                <button id="addPromoBtn" class="btn primary">Qo'shish</button>
+              </div>
+              <div style="max-height:200px; overflow:auto;">
+                <table id="promosTable"><thead><tr><th>Code</th><th>Value</th><th>Action</th></tr></thead><tbody></tbody></table>
+              </div>
+            </div>
+
+            <!-- CARDS -->
+            <div data-admin-panel="cards" class="admin-tab hidden">
+              <h4>To'lov kartalari</h4>
+              <div style="display:flex; gap:8px; margin-bottom:8px;">
+                <input id="cardName" placeholder="UZCARD/HUMO" />
+                <input id="cardNumber" placeholder="5614 6887 0039 5675" />
+                <input id="cardHolder" placeholder="Ism Familiya" />
+                <button id="addCardBtn" class="btn primary">Qo'shish</button>
+              </div>
+              <div style="max-height:200px; overflow:auto;">
+                <table id="cardsTable"><thead><tr><th>Name</th><th>Number</th><th>Holder</th><th>Action</th></tr></thead><tbody></tbody></table>
+              </div>
+            </div>
+
+            <!-- ORDERS -->
+            <div data-admin-panel="orders" class="admin-tab hidden">
+              <h4>Buyurtmalar</h4>
+              <div style="margin-bottom:8px; display:flex; gap:8px;">
+                <button id="refreshOrdersBtn" class="btn">Yangilash</button>
+                <button id="exportOrdersBtn" class="btn">Eksport</button>
+                <button id="clearCompletedBtn" class="btn">Bajarilganlarni tozalash</button>
+              </div>
+              <div style="max-height:300px; overflow:auto;">
+                <table id="ordersTable"><thead><tr><th>ID</th><th>Paket</th><th>Qty</th><th>UID</th><th>Note</th><th>Time</th><th>Status</th><th>Action</th></tr></thead><tbody></tbody></table>
+              </div>
+            </div>
+
+            <!-- SETTINGS -->
+            <div data-admin-panel="settings" class="admin-tab hidden">
+              <h4>Sozlamalar</h4>
+              <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <div style="min-width:240px;">
+                  <label class="small">Soxta sotib olish yoqilsin</label>
+                  <div class="flex" style="margin-top:6px;">
+                    <input id="fakeEnabled" type="checkbox" /> <div class="small" style="margin-left:6px;">Yoqish</div>
+                  </div>
+                </div>
+                <div style="min-width:240px;">
+                  <label class="small">Soxta interval (ms)</label>
+                  <input id="fakeInterval" placeholder="3600000" />
+                </div>
+                <div style="min-width:240px;">
+                  <label class="small">Admin parolni o'zgartirish</label>
+                  <input id="changeAdminPass" placeholder="Yangi parol" type="password" />
+                  <div style="display:flex; gap:8px; margin-top:6px;">
+                    <button id="changePassBtn" class="btn primary">O'zgartirish</button>
+                  </div>
+                </div>
+              </div>
+
+              <div style="margin-top:12px; display:flex; gap:8px;">
+                <button id="exportAllBtn" class="btn">Export barcha ma'lumot</button>
+                <input id="importFile" type="file" accept="application/json" />
+                <button id="resetStatsBtn" class="btn danger">Statsni Reset</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast container -->
+  <div id="toasts" style="position:fixed; left:12px; bottom:12px; z-index:400;"></div>
+
+  <script>
+  // =========================
+  // Utilities
+  // =========================
+  const $ = (s, el=document) => el.querySelector(s);
+  const $$ = (s, el=document) => [...el.querySelectorAll(s)];
+  const save = (k,v) => localStorage.setItem(k, JSON.stringify(v));
+  const load = (k, def) => {
+    const v = localStorage.getItem(k);
+    if(!v) return def;
+    try { return JSON.parse(v); } catch { return def; }
+  };
+  const hashSHA256 = async (str) => {
+    const enc = new TextEncoder();
+    const data = enc.encode(str);
+    const hash = await crypto.subtle.digest('SHA-256', data);
+    const arr = Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    return arr;
+  };
+  const toast = (msg, ms=3000) => {
+    const el = document.createElement('div'); el.textContent = msg;
+    el.style.background='rgba(0,0,0,0.6)'; el.style.color='#fff'; el.style.padding='8px 10px'; el.style.borderRadius='8px'; el.style.marginTop='8px';
+    document.getElementById('toasts').appendChild(el);
+    setTimeout(()=> el.remove(), ms);
+  };
+
+  // =========================
+  // Default data and init
+  // =========================
+  const DEFAULT_ADMIN_HASH_KEY = "adminHash_v1";
+  const DEFAULT_ADMIN_PASS = "admin123";
+
+  // initial default packs/promos/cards/orders stored under keys
+  const PACKS_KEY = "app_packs_v1";
+  const PROMOS_KEY = "app_promos_v1";
+  const CARDS_KEY = "app_cards_v1";
+  const ORDERS_KEY = "app_orders_v1";
+  const STATS_KEY = "app_stats_v1";
+  const SETTINGS_KEY = "app_settings_v1";
+
+  // Ensure defaults exist
+  function ensureDefaults(){
+    if(!localStorage.getItem(PACKS_KEY)){
+      save(PACKS_KEY, [
+        { amount: "30 UC", price: "8,000 so'm" },
+        { amount: "60 UC", price: "12,000 so'm" },
+        { amount: "120 UC", price: "24,000 so'm", tag:"MASHHUR" },
+      ]);
+    }
+    if(!localStorage.getItem(PROMOS_KEY)) save(PROMOS_KEY, { VIP10: 0.10, BAHROM15: 0.15 });
+    if(!localStorage.getItem(CARDS_KEY)) save(CARDS_KEY, [
+      { name:"UZCARD", number:"5614 6887 0039 5675", holder:"Mengliyev Bahrom" },
+      { name:"HUMO", number:"9860 1201 4526 4012", holder:"Mengliyev Bahrom" }
+    ]);
+    if(!localStorage.getItem(ORDERS_KEY)) save(ORDERS_KEY, []);
+    if(!localStorage.getItem(STATS_KEY)) save(STATS_KEY, { orders: 1500, uc: 250000 });
+    if(!localStorage.getItem(SETTINGS_KEY)) save(SETTINGS_KEY, { fakeEnabled: true, fakeInterval: 3600000, lastFake: 0 });
+    if(!localStorage.getItem(DEFAULT_ADMIN_HASH_KEY)){
+      // store default hashed password
+      hashSHA256(DEFAULT_ADMIN_PASS).then(h => localStorage.setItem(DEFAULT_ADMIN_HASH_KEY, h));
+    }
+  }
+
+  ensureDefaults();
+
+  // Load vars
+  let PACKS = load(PACKS_KEY, []);
+  let PROMOS = load(PROMOS_KEY, {});
+  let CARDS = load(CARDS_KEY, []);
+  let ORDERS = load(ORDERS_KEY, []);
+  let STATS = load(STATS_KEY, { orders:0, uc:0 });
+  let SETTINGS = load(SETTINGS_KEY, { fakeEnabled:true, fakeInterval:3600000, lastFake:0 });
+
+  // Helper formatting
+  const currencyToNumber = s => Number((s||"").replaceAll(",","").replace(/\D/g,"")) || 0;
+  const numberToCurrency = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+  // =========================
+  // Render store packs (main UI)
+  // =========================
+  function renderStorePacks(){
+    PACKS = load(PACKS_KEY, PACKS);
+    const grid = document.getElementById('grid');
+    grid.innerHTML = '';
+    PACKS.forEach(p=>{
+      const el = document.createElement('div'); el.className='card panel';
+      const title = document.createElement('div'); title.style.fontWeight='900'; title.textContent = p.amount;
+      const price = document.createElement('div'); price.className='small'; price.style.color='var(--accent2)'; price.textContent = p.price;
+      const cta = document.createElement('div'); cta.className='flex'; cta.style.marginTop='8px';
+      const buy = document.createElement('button'); buy.className='btn primary'; buy.textContent='Sotib olish';
+      buy.addEventListener('click', ()=> openModal(p));
+      const add = document.createElement('button'); add.className='btn'; add.textContent="Savatchaga qo'shish";
+      add.addEventListener('click', ()=> { addToCart(p); toast(p.amount + ' savatchaga qo‘shildi'); });
+      cta.appendChild(buy); cta.appendChild(add);
+      el.appendChild(title); el.appendChild(price); el.appendChild(cta);
+      grid.appendChild(el);
+    });
+    // update admin view of packs if open
+    renderAdminPacks();
+  }
+
+  // =========================
+  // CART functionality (same as before)
+  // =========================
+  let CART = load('app_cart_v1', []);
+  function saveCart(){ save('app_cart_v1', CART); renderCart(); }
+  function addToCart(p){
+    const it = CART.find(x=>x.amount===p.amount);
+    if(it) it.qty +=1; else CART.push({ amount:p.amount, price:p.price, qty:1 });
+    saveCart();
+  }
+  function renderCart(){
+    const cartBody = document.getElementById('cartBody');
+    cartBody.innerHTML = '';
+    let total = 0;
+    CART.forEach(item=>{
+      const price = currencyToNumber(item.price) * item.qty;
+      total += price;
+      const row = document.createElement('div'); row.className='cart-item';
+      row.style.display='flex'; row.style.justifyContent='space-between'; row.style.alignItems='center'; row.style.marginBottom='6px';
+      row.innerHTML = `<div style="font-weight:800">${item.amount}</div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <button class="btn">−</button>
+          <div style="min-width:28px; text-align:center">${item.qty}</div>
+          <button class="btn">+</button>
+          <div style="font-weight:800">${numberToCurrency(price)}</div>
+          <button class="btn">✖</button>
+        </div>`;
+      const [minus, , plus, , rem] = row.querySelectorAll('button');
+      minus.addEventListener('click', ()=> { changeQty(item.amount,-1); });
+      plus.addEventListener('click', ()=> { changeQty(item.amount,1); });
+      rem.addEventListener('click', ()=> { removeFromCart(item.amount); });
+      cartBody.appendChild(row);
+    });
+    document.getElementById('cartTotal').textContent = numberToCurrency(total);
+    document.getElementById('cartCountTop').textContent = CART.reduce((s,x)=>s+x.qty,0);
+    document.getElementById('cartCountBadge').textContent = CART.reduce((s,x)=>s+x.qty,0);
+  }
+  function changeQty(amount, delta){
+    const it = CART.find(x=>x.amount===amount);
+    if(!it) return;
+    it.qty += delta;
+    if(it.qty<=0) CART = CART.filter(x=>x.amount!==amount);
+    saveCart();
+  }
+  function removeFromCart(amount){
+    CART = CART.filter(x=>x.amount!==amount); saveCart();
+  }
+
+  // order send (cart)
+  document.getElementById('orderCart').addEventListener('click', ()=>{
+    if(CART.length===0){ toast("Savatcha bo'sh"); return; }
+    // prepare order object
+    const lines = CART.map(it=> `${it.amount} x${it.qty}`);
+    const order = { id: 'ord_' + Date.now(), items: CART, qty: CART.reduce((s,x)=>s+x.qty,0), uid: '-', note: '-', time: Date.now(), status: 'yangi' };
+    ORDERS = load(ORDERS_KEY, ORDERS);
+    ORDERS.push(order); save(ORDERS_KEY, ORDERS);
+    // increment stats on server-like behavior
+    CART.forEach(it => incStatsFromPack(it.amount, it.qty));
+    CART = []; save('app_cart_v1', CART); renderCart(); renderStorePacks();
+    toast('Buyurtma saqlandi va yuborildi (Telegramga ham o‘chiriladi).');
+  });
+
+  // Send single pack from modal
+  let selectedPack = null;
+  function openModal(pack){
+    selectedPack = pack;
+    document.getElementById('modalBackdrop').style.display='flex';
+    document.getElementById('modalBackdrop').setAttribute('aria-hidden','false');
+  }
+  document.getElementById('closeModalBtn').addEventListener('click', ()=> {
+    document.getElementById('modalBackdrop').style.display='none';
+  });
+  document.getElementById('sendTg').addEventListener('click', ()=>{
+    const id = document.getElementById('playerId').value.trim();
+    if(!/^[0-9]{6,}$/.test(id)) { alert("Iltimos to‘g‘ri PUBG ID kiriting."); return; }
+    const note = document.getElementById('note').value.trim();
+    // Create order record
+    const order = { id: 'ord_' + Date.now(), items: [{ amount: selectedPack.amount, price: selectedPack.price, qty:1 }], qty:1, uid: id, note: note, time: Date.now(), status: 'yangi' };
+    ORDERS = load(ORDERS_KEY, ORDERS); ORDERS.push(order); save(ORDERS_KEY, ORDERS);
+    incStatsFromPack(selectedPack.amount, 1);
+    document.getElementById('modalBackdrop').style.display='none';
+    toast('Buyurtma saqlandi va yuborildi.');
+  });
+
+  // increment stats helper
+  function incStatsFromPack(amountStr, qty=1){
+    STATS = load(STATS_KEY, STATS);
+    const ucEach = parseInt((amountStr||"").replace(/\D/g,'')) || 0;
+    STATS.orders = Number(STATS.orders || 0) + qty;
+    STATS.uc = Number(STATS.uc || 0) + ucEach * qty;
+    save(STATS_KEY, STATS); renderStats();
+  }
+  function renderStats(){
+    STATS = load(STATS_KEY, STATS);
+    document.getElementById('statOrders').textContent = numberToCurrency(STATS.orders || 0);
+    document.getElementById('statUC').textContent = numberToCurrency(STATS.uc || 0);
+  }
+
+  // Initial render
+  renderStorePacks();
+  renderCart();
+  renderStats();
+
+  // Clear cart
+  document.getElementById('clearCartBtn').addEventListener('click', ()=> { CART=[]; save('app_cart_v1', CART); renderCart(); toast('Savatcha tozalandi'); });
+
+  // Drawer open/close
+  document.getElementById('openCartBtn').addEventListener('click', ()=> {
+    document.getElementById('drawer').classList.remove('hidden'); document.getElementById('drawer').setAttribute('aria-hidden','false');
+  });
+  document.getElementById('closeDrawerBtn').addEventListener('click', ()=> {
+    document.getElementById('drawer').classList.add('hidden'); document.getElementById('drawer').setAttribute('aria-hidden','true');
+  });
+
+  // =========================
+  // ADMIN panel logic
+  // =========================
+  const adminModal = document.getElementById('adminModal');
+  const adminPanelArea = document.getElementById('adminPanelArea');
+  const adminLoginArea = document.getElementById('adminLoginArea');
+
+  document.getElementById('openAdminBtn').addEventListener('click', ()=> {
+    adminModal.classList.remove('hidden'); adminModal.style.display='flex'; adminModal.setAttribute('aria-hidden','false');
+    adminLoginArea.style.display='block'; adminPanelArea.classList.add('hidden');
+  });
+  document.getElementById('adminCloseBtn').addEventListener('click', ()=> {
+    adminModal.classList.add('hidden'); adminModal.style.display='none';
+  });
+
+  // Admin login
+  document.getElementById('adminLoginBtn').addEventListener('click', async ()=> {
+    const pass = document.getElementById('adminPass').value || '';
+    const storedHash = localStorage.getItem('adminHash_v1');
+    const h = await hashSHA256(pass);
+    if(h === storedHash){
+      // show admin panel
+      adminLoginArea.style.display='none';
+      adminPanelArea.classList.remove('hidden');
+      loadAdminPanel();
+      toast('Adminga muvaffaqiyatli kirildi');
+    } else {
+      alert('Parol noto‘g‘ri');
+    }
+  });
+
+  document.getElementById('adminLogoutBtn').addEventListener('click', ()=> {
+    adminPanelArea.classList.add('hidden'); adminLoginArea.style.display='block';
+  });
+
+  // Admin tabs
+  $$('[data-admin-tab]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const tab = btn.dataset.adminTab;
+      $$('[data-admin-panel]').forEach(p=> p.classList.add('hidden'));
+      const panel = document.querySelector(`[data-admin-panel="${tab}"]`);
+      if(panel) panel.classList.remove('hidden');
+      // refresh specific
+      if(tab==='packs') renderAdminPacks();
+      if(tab==='promos') renderAdminPromos();
+      if(tab==='cards') renderAdminCards();
+      if(tab==='orders') renderAdminOrders();
+      if(tab==='settings') loadAdminSettings();
+    });
+  });
+
+  // Render admin packs table
+  function renderAdminPacks(){
+    PACKS = load(PACKS_KEY, PACKS);
+    const tbody = document.querySelector('#packsTable tbody');
+    tbody.innerHTML = '';
+    PACKS.forEach((p, idx)=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${p.amount}</td><td>${p.price}</td><td>${p.tag||''}</td>
+        <td>
+          <button data-edit="${idx}" class="btn">Tahrir</button>
+          <button data-del="${idx}" class="btn danger">O'chirish</button>
+        </td>`;
+      tbody.appendChild(tr);
+    });
+    // bind
+    tbody.querySelectorAll('[data-edit]').forEach(b=> b.addEventListener('click', (e)=>{
+      const idx = Number(e.currentTarget.dataset.edit);
+      const p = PACKS[idx];
+      document.getElementById('packAmount').value = p.amount;
+      document.getElementById('packPrice').value = p.price;
+      document.getElementById('packTag').value = p.tag||'';
+      // replace on add click - implement as edit mode
+      document.getElementById('addPackBtn').textContent='Saqlash';
+      document.getElementById('addPackBtn').onclick = ()=> {
+        PACKS[idx] = { amount: document.getElementById('packAmount').value.trim(), price: document.getElementById('packPrice').value.trim(), tag: document.getElementById('packTag').value.trim() };
+        save(PACKS_KEY, PACKS); renderAdminPacks(); renderStorePacks();
+        document.getElementById('addPackBtn').textContent='Qo\'shish'; document.getElementById('packAmount').value=''; document.getElementById('packPrice').value=''; document.getElementById('packTag').value='';
+        document.getElementById('addPackBtn').onclick = addPackHandler;
+      };
+    }));
+    tbody.querySelectorAll('[data-del]').forEach(b=> b.addEventListener('click', (e)=>{
+      const idx = Number(e.currentTarget.dataset.del);
+      if(confirm('Haqiqatan paket o‘chirishni xohlaysizmi?')) {
+        PACKS.splice(idx,1); save(PACKS_KEY, PACKS); renderAdminPacks(); renderStorePacks();
+      }
+    }));
+  }
+
+  // add pack
+  const addPackHandler = ()=> {
+    const amount = document.getElementById('packAmount').value.trim();
+    const price = document.getElementById('packPrice').value.trim();
+    const tag = document.getElementById('packTag').value.trim();
+    if(!amount || !price){ alert('Amount va price kiritilsin'); return; }
+    PACKS.push({ amount, price, tag });
+    save(PACKS_KEY, PACKS); renderAdminPacks(); renderStorePacks();
+    document.getElementById('packAmount').value=''; document.getElementById('packPrice').value=''; document.getElementById('packTag').value='';
+  };
+  document.getElementById('addPackBtn').addEventListener('click', addPackHandler);
+
+  // PROMOS admin
+  function renderAdminPromos(){
+    PROMOS = load(PROMOS_KEY, PROMOS);
+    const tbody = document.querySelector('#promosTable tbody'); tbody.innerHTML='';
+    Object.keys(PROMOS).forEach(code=>{
+      const tr = document.createElement('tr'); tr.innerHTML = `<td>${code}</td><td>${PROMOS[code]}</td><td><button data-delpromo="${code}" class="btn danger">O'chirish</button></td>`;
+      tbody.appendChild(tr);
+    });
+    tbody.querySelectorAll('[data-delpromo]').forEach(b=> b.addEventListener('click', (e)=>{
+      const code = e.currentTarget.dataset.delpromo;
+      if(confirm('Promo kodni o‘chirilsinmi?')) { delete PROMOS[code]; save(PROMOS_KEY, PROMOS); renderAdminPromos(); }
+    }));
+  }
+  document.getElementById('addPromoBtn').addEventListener('click', ()=>{
+    const code = document.getElementById('promoCodeInput').value.trim().toUpperCase();
+    const val = parseFloat(document.getElementById('promoValueInput').value);
+    if(!code || isNaN(val)){ alert('To‘g‘ri ma\'lumot kiriting'); return; }
+    PROMOS[code] = val; save(PROMOS_KEY, PROMOS); renderAdminPromos();
+    document.getElementById('promoCodeInput').value=''; document.getElementById('promoValueInput').value='';
+  });
+
+  // CARDS admin
+  function renderAdminCards(){
+    CARDS = load(CARDS_KEY, CARDS);
+    const tbody = document.querySelector('#cardsTable tbody'); tbody.innerHTML='';
+    CARDS.forEach((c, idx)=>{
+      const tr = document.createElement('tr'); tr.innerHTML = `<td>${c.name}</td><td>${c.number}</td><td>${c.holder}</td><td><button data-delcard="${idx}" class="btn danger">O'chirish</button></td>`;
+      tbody.appendChild(tr);
+    });
+    tbody.querySelectorAll('[data-delcard]').forEach(b=> b.addEventListener('click', (e)=> {
+      const idx = Number(e.currentTarget.dataset.delcard);
+      if(confirm('Kartani o‘chirasizmi?')) { CARDS.splice(idx,1); save(CARDS_KEY, CARDS); renderAdminCards(); }
+    }));
+  }
+  document.getElementById('addCardBtn').addEventListener('click', ()=> {
+    const n = document.getElementById('cardName').value.trim();
+    const num = document.getElementById('cardNumber').value.trim();
+    const h = document.getElementById('cardHolder').value.trim();
+    if(!n||!num){ alert('To‘g‘ri kiritilsin'); return; }
+    CARDS.push({ name:n, number:num, holder:h }); save(CARDS_KEY, CARDS); renderAdminCards();
+    document.getElementById('cardName').value=''; document.getElementById('cardNumber').value=''; document.getElementById('cardHolder').value='';
+  });
+
+  // ORDERS admin
+  function renderAdminOrders(){
+    ORDERS = load(ORDERS_KEY, ORDERS);
+    const tbody = document.querySelector('#ordersTable tbody'); tbody.innerHTML='';
+    ORDERS.slice().reverse().forEach((o, idx)=>{
+      const tr = document.createElement('tr');
+      const items = o.items.map(i=> i.amount + (i.qty ? ' x' + i.qty : '')).join(', ');
+      tr.innerHTML = `<td>${o.id}</td><td>${items}</td><td>${o.qty||1}</td><td>${o.uid||'-'}</td><td>${o.note||'-'}</td><td>${new Date(o.time).toLocaleString()}</td><td>${o.status||'yangi'}</td>
+        <td>
+          <button data-mark="${o.id}" class="btn">Bajarildi</button>
+          <button data-del="${o.id}" class="btn danger">O'chirish</button>
+        </td>`;
+      tbody.appendChild(tr);
+    });
+    tbody.querySelectorAll('[data-mark]').forEach(b=> b.addEventListener('click', (e)=>{
+      const id = e.currentTarget.dataset.mark;
+      if(confirm('Buyurtmani bajarildi deb belgilaysizmi?')){
+        ORDERS = ORDERS.map(o=> o.id===id ? {...o, status:'bajarildi'} : o);
+        save(ORDERS_KEY, ORDERS); renderAdminOrders();
+      }
+    }));
+    tbody.querySelectorAll('[data-del]').forEach(b=> b.addEventListener('click', (e)=>{
+      const id = e.currentTarget.dataset.del;
+      if(confirm('Buyurtmani o‘chirilsinmi?')) {
+        ORDERS = ORDERS.filter(o=> o.id!==id); save(ORDERS_KEY, ORDERS); renderAdminOrders();
+      }
+    }));
+  }
+  document.getElementById('refreshOrdersBtn').addEventListener('click', renderAdminOrders);
+  document.getElementById('clearCompletedBtn').addEventListener('click', ()=> {
+    ORDERS = load(ORDERS_KEY, ORDERS);
+    ORDERS = ORDERS.filter(o=> o.status !== 'bajarildi');
+    save(ORDERS_KEY, ORDERS); renderAdminOrders(); toast('Bajarilgan buyurtmalar tozalandi');
+  });
+  document.getElementById('exportOrdersBtn').addEventListener('click', ()=> {
+    const data = load(ORDERS_KEY, ORDERS); const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'}); const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'orders.json'; a.click(); URL.revokeObjectURL(url);
+  });
+
+  // SETTINGS admin
+  function loadAdminSettings(){
+    SETTINGS = load(SETTINGS_KEY, SETTINGS);
+    document.getElementById('fakeEnabled').checked = !!SETTINGS.fakeEnabled;
+    document.getElementById('fakeInterval').value = SETTINGS.fakeInterval || 3600000;
+  }
+  document.getElementById('fakeEnabled').addEventListener('change', (e)=>{
+    SETTINGS.fakeEnabled = e.target.checked; save(SETTINGS_KEY, SETTINGS);
+  });
+  document.getElementById('fakeInterval').addEventListener('change', (e)=>{
+    const val = Number(e.target.value) || 3600000; SETTINGS.fakeInterval = val; save(SETTINGS_KEY, SETTINGS);
+    // restart fake schedule
+    restartFakeSchedule();
+  });
+
+  // change admin pass
+  document.getElementById('changePassBtn').addEventListener('click', async ()=>{
+    const newPass = document.getElementById('changeAdminPass').value.trim();
+    if(!newPass){ alert('Parol bo‘sh bo‘lishi mumkin emas'); return; }
+    const newHash = await hashSHA256(newPass); localStorage.setItem(DEFAULT_ADMIN_HASH_KEY, newHash); document.getElementById('changeAdminPass').value=''; toast('Parol o\'zgartirildi');
+  });
+
+  // export/import all
+  document.getElementById('exportAllBtn').addEventListener('click', ()=> {
+    const all = {
+      packs: load(PACKS_KEY, PACKS),
+      promos: load(PROMOS_KEY, PROMOS),
+      cards: load(CARDS_KEY, CARDS),
+      orders: load(ORDERS_KEY, ORDERS),
+      stats: load(STATS_KEY, STATS),
+      settings: load(SETTINGS_KEY, SETTINGS)
+    };
+    const blob = new Blob([JSON.stringify(all, null, 2)], {type:'application/json'}); const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'backup_store.json'; a.click(); URL.revokeObjectURL(url);
+  });
+
+  document.getElementById('importFile').addEventListener('change', (e)=>{
+    const f = e.target.files[0]; if(!f) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result);
+        if(data.packs) save(PACKS_KEY, data.packs);
+        if(data.promos) save(PROMOS_KEY, data.promos);
+        if(data.cards) save(CARDS_KEY, data.cards);
+        if(data.orders) save(ORDERS_KEY, data.orders);
+        if(data.stats) save(STATS_KEY, data.stats);
+        if(data.settings) save(SETTINGS_KEY, data.settings);
+        // reload local copies
+        PACKS = load(PACKS_KEY, PACKS); PROMOS = load(PROMOS_KEY, PROMOS); CARDS = load(CARDS_KEY, CARDS); ORDERS = load(ORDERS_KEY, ORDERS); STATS = load(STATS_KEY, STATS); SETTINGS = load(SETTINGS_KEY, SETTINGS);
+        renderAdminPacks(); renderAdminPromos(); renderAdminCards(); renderAdminOrders(); renderStorePacks(); renderStats();
+        toast('Import muvaffaqiyatli bajarildi');
+      } catch(err){ alert('JSON o‘qishda xatolik'); }
+    };
+    reader.readAsText(f);
+  });
+
+  // Reset stats
+  document.getElementById('resetStatsBtn').addEventListener('click', ()=> {
+    if(confirm('Statistikani asl holatga qaytarmoqchimisiz?')) {
+      STATS = { orders:0, uc:0 }; save(STATS_KEY, STATS); renderStats(); toast('Stats reset qilindi');
+    }
+  });
+
+  // Admin change password initial: if default not set, set it
+  // Already set in ensureDefaults
+
+  // =========================
+  // FAKE purchases scheduler (admin controlled)
+  // =========================
+  let fakeIntervalTimer = null;
+  function scheduleFakeOnce(){ // manual call
+    SETTINGS = load(SETTINGS_KEY, SETTINGS);
+    if(!SETTINGS.fakeEnabled) return;
+    const idx = Math.floor(Math.random() * PACKS.length);
+    const p = PACKS[idx] || PACKS[0];
+    // create fake order record (anonymous)
+    const order = { id: 'fake_' + Date.now(), items: [{ amount: p.amount, price: p.price, qty:1 }], qty:1, uid: 'anon', note:'fake', time: Date.now(), status: 'bajarildi' };
+    ORDERS = load(ORDERS_KEY, ORDERS); ORDERS.push(order); save(ORDERS_KEY, ORDERS);
+    // increment stats mildly
+    incStatsFromPack(p.amount, 1);
+    SETTINGS.lastFake = Date.now(); save(SETTINGS_KEY, SETTINGS);
+    toast('Soxta buyurtma: ' + p.amount);
+  }
+  function startFakeSchedule(){
+    SETTINGS = load(SETTINGS_KEY, SETTINGS);
+    if(fakeIntervalTimer) clearInterval(fakeIntervalTimer);
+    if(SETTINGS.fakeEnabled){
+      fakeIntervalTimer = setInterval(()=>{
+        scheduleFakeOnce();
+      }, SETTINGS.fakeInterval || 3600000);
+    }
+  }
+  function restartFakeSchedule(){ startFakeSchedule(); }
+  // manual trigger btn
+  const manualFakeBtn = document.createElement('button'); manualFakeBtn.textContent='Soxta bir marta yarat'; manualFakeBtn.className='btn'; manualFakeBtn.addEventListener('click', ()=> { scheduleFakeOnce(); renderAdminOrders(); });
+  document.querySelector('[data-admin-panel="settings"]').appendChild(manualFakeBtn);
+
+  // start schedule on load
+  startFakeSchedule();
+
+  // =========================
+  // Admin load function
+  // =========================
+  function loadAdminPanel(){
+    renderAdminPacks(); renderAdminPromos(); renderAdminCards(); renderAdminOrders(); loadAdminSettings();
+  }
+
+  // =========================
+  // Save before unload
+  // =========================
+  window.addEventListener('beforeunload', ()=> {
+    save(PACKS_KEY, PACKS); save(PROMOS_KEY, PROMOS); save(CARDS_KEY, CARDS); save(ORDERS_KEY, ORDERS); save(STATS_KEY, STATS); save(SETTINGS_KEY, SETTINGS); save('app_cart_v1', CART);
+  });
+
+  // small UI: when admin modal closed on outside click
+  adminModal.addEventListener('click', (e)=> { if(e.target === adminModal){ adminModal.classList.add('hidden'); adminModal.style.display='none'; } });
+
+  // ensure initial rendering
+  renderStorePacks();
+  renderAdminPacks();
+  renderAdminPromos();
+  renderAdminCards();
+  renderAdminOrders();
+  renderStats();
+
+  </script>
+</body>
+</html>
