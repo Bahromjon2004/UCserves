@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PUBG Mobile UC — Arzon, Tezkor, Ishonchli</title>
+  <meta name="description" content="PUBG Mobile UC — Tezkor yetkazib berish, arzon narxlar, 100% ishonchli. @MengliyevBahrom bilan bog'laning." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg: #0e0f13;
+      --card: #14161b;
+      --muted: #8b93a1;
+      --text: #e7ecf3;
+      --brand1:#ff6b35;
+      --brand2:#f7931e;
+      --brand3:#ffcc02;
+      --accent: #2dd4bf;
+      --ok:#22c55e;
+      --warn:#f59e0b;
+      --danger:#ef4444;
+      --ring: rgba(45,212,191,.35);
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --glass: rgba(255,255,255,.06);
+      --badge: #2a2f39;
+      --chip:#1b1f27;
+      --btn:#1f2937;
+    }
+    [data-theme='light']{
+      --bg: #f6f7fb;
+      --card:#ffffff;
+      --muted:#667085;
+      --text:#0b1220;
+      --brand1:#ff6b35;
+      --brand2:#f97316;
+      --brand3:#f59e0b;
+      --accent:#06b6d4;
+      --ring: rgba(6,182,212,.35);
+      --shadow: 0 8px 24px rgba(2,6,23,.08);
+      --glass: rgba(0,0,0,.04);
+      --badge:#eef2ff;
+      --chip:#eef2ff;
+      --btn:#111827;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: radial-gradient(1200px 800px at 10% -10%, rgba(45,212,191,.08), transparent 60%),
+                  radial-gradient(1400px 900px at 110% -20%, rgba(247,147,30,.08), transparent 60%),
+                  var(--bg);
+      color:var(--text);
+      line-height:1.5;
+      overflow-x:hidden;
+    }
+
+    .parallax {
+      position: fixed;
+      inset: -20vmax;
+      background: radial-gradient(60vmax 40vmax at 10% 10%, rgba(45,212,191,.08), transparent 60%),
+                  radial-gradient(70vmax 40vmax at 90% 0%, rgba(247,147,30,.08), transparent 60%);
+      z-index:-1;
+      transform: translateZ(0);
+      will-change: transform;
+    }
+
+    .container{ max-width:1200px; margin-inline:auto; padding:24px; }
+
+    /* Topbar */
+    .topbar{
+      display:flex; align-items:center; gap:12px; justify-content:space-between;
+      position:sticky; top:0; z-index:50; padding:12px 24px; margin:-24px -24px 16px; backdrop-filter: blur(10px);
+      background:linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,0)) ;
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+    .brand{ display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--text); }
+    .logo{
+      width:38px; height:38px; display:grid; place-items:center; border-radius:12px;
+      background: conic-gradient(from 120deg, var(--brand1), var(--brand2), var(--brand3));
+      color:#111; font-weight:900; box-shadow: var(--shadow);
+    }
+    .title{font-weight:900; letter-spacing:.2px}
+    .subtitle{color:var(--muted); font-size:12px; margin-top:-4px}
+
+    .actions{display:flex; align-items:center; gap:8px}
+    .btn{
+      border:1px solid rgba(255,255,255,.1);
+      background: var(--glass);
+      color:var(--text);
+      padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:600;
+      transition: all .2s ease; display:inline-flex; align-items:center; gap:8px;
+    }
+    .btn:hover{ transform: translateY(-1px); box-shadow: 0 6px 20px var(--ring); }
+    .btn.primary{ background: linear-gradient(90deg, var(--brand1), var(--brand2)); border-color: transparent; color:#111; }
+    .segmented{ display:flex; background: var(--glass); border:1px solid rgba(255,255,255,.08); padding:3px; border-radius:14px; }
+    .segmented button{ all:unset; cursor:pointer; padding:8px 10px; border-radius:10px; font-weight:700; font-size:12px; min-width:40px; text-align:center; }
+    .segmented button.active{ background:linear-gradient(90deg, var(--brand2), var(--brand3)); color:#111; }
+
+    /* Hero */
+    .hero{ display:grid; grid-template-columns:1.1fr .9fr; gap:24px; align-items:center; margin-top:8px; }
+    .hero h1{
+      font-size: clamp(28px, 4vw, 44px);
+      line-height:1.05; margin:0;
+      background: linear-gradient(90deg, var(--brand1), var(--brand2), var(--brand3));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 6px 22px rgba(255,204,2,.25));
+    }
+    .hero p{ color:var(--muted); margin-top:8px}
+    .badges{display:flex; gap:10px; flex-wrap:wrap; margin-top:14px}
+    .pill{ font-weight:800; font-size:12px; padding:8px 12px; border-radius:999px; background: var(--badge); border:1px solid rgba(255,255,255,.08); }
+
+    .panel{
+      background: var(--card); border:1px solid rgba(255,255,255,.08); border-radius:18px; padding:18px; box-shadow: var(--shadow);
+    }
+
+    /* Controls */
+    .controls{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px}
+    .input{ display:flex; align-items:center; gap:8px; background: var(--glass); border:1px solid rgba(255,255,255,.08); padding:10px 12px; border-radius:12px; min-width:200px; flex:1; }
+    .input input, .input select{ all:unset; width:100%; color:var(--text); }
+    .chips{display:flex; gap:8px; flex-wrap:wrap}
+    .chip{ background: var(--chip); border:1px solid rgba(255,255,255,.09); padding:8px 10px; border-radius:999px; font-weight:700; font-size:12px; cursor:pointer; }
+    .chip.active{ outline: 2px solid var(--ring); }
+    .quick-filters{ display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+
+    /* Grid */
+    .grid{ display:grid; grid-template-columns: repeat( auto-fill, minmax(230px, 1fr) ); gap:16px; margin-top:16px; }
+    .card{
+      position:relative; overflow:hidden; border-radius:18px; padding:18px; background: linear-gradient(140deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid rgba(255,255,255,.09); transition: transform .2s ease, box-shadow .2s ease;
+    }
+    .card:hover{ transform: translateY(-4px) scale(1.01); box-shadow: 0 16px 40px rgba(0,0,0,.25); }
+    .shine{ position:absolute; inset:-100% 0 auto; height:60%; background: linear-gradient(120deg, rgba(255,255,255,.0) 40%, rgba(255,255,255,.25) 47%, rgba(255,255,255,.0) 54%); transform: rotate(6deg); transition: .6s; pointer-events:none; }
+    .card:hover .shine{ transform: translateY(120%) rotate(6deg); }
+    .card .row{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+    .tag{
+      position:absolute; top:10px; right:10px; font-weight:900; font-size:11px; padding:6px 10px; border-radius:999px;
+      background: linear-gradient(90deg, var(--brand2), var(--brand3)); color:#111; border:1px solid rgba(0,0,0,.08);
+      box-shadow: inset 0 -1px 0 rgba(255,255,255,.35);
+      animation: pulseTag 2.2s infinite;
+    }
+    @keyframes pulseTag{ 0%,100%{ transform: translateZ(0) scale(1) } 50%{ transform: translateZ(0) scale(1.03) } }
+    .amount{ font-size:22px; font-weight:900; letter-spacing:.3px }
+    .price{ color:var(--brand3); font-weight:800; margin-top:6px }
+    .cta{ display:flex; align-items:center; justify-content:space-between; margin-top:12px; gap:8px }
+    .buy{ border:none; cursor:pointer; font-weight:900; padding:10px 14px; border-radius:12px; background: linear-gradient(90deg, var(--brand1), var(--brand2)); color:#111; box-shadow: 0 8px 24px rgba(247,147,30,.25); }
+    .icon-btn{ background: var(--glass); border:1px solid rgba(255,255,255,.12); color:var(--text); border-radius:12px; padding:10px; cursor:pointer }
+    .icon-btn.active{ outline:2px solid var(--ring) }
+
+    /* Payment section */
+    .payments{ display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:14px; margin-top:16px; }
+    .paycard{ border-radius:16px; padding:16px; background: var(--card); border:1px solid rgba(255,255,255,.08); position:relative; overflow:hidden; }
+    .paycard::after{ content:""; position:absolute; inset:0; background: radial-gradient(400px 200px at 100% 0%, rgba(255,255,255,.08), transparent 50%); pointer-events:none; }
+    .payhead{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px}
+    .payname{ font-weight:900; letter-spacing:.3px }
+    .copy{ cursor:pointer; border:none; padding:8px 12px; border-radius:10px; background:var(--glass); color:var(--text); font-weight:700}
+    .copy:active{ transform: scale(.98) }
+    .code{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-weight:800; letter-spacing:.6px }
+
+    /* Contact & How */
+    .contact{ display:grid; grid-template-columns:1.1fr .9fr; gap:16px; margin-top:20px; align-items:center; }
+    .contact .panel{ height:100% }
+    .link{ text-decoration:none; color:#111; background: linear-gradient(90deg, #08c, #0af); padding:12px 16px; display:inline-flex; gap:10px; align-items:center; border-radius:12px; font-weight:900 }
+
+    /* Testimonials */
+    .testimonials{ display:grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap:14px; margin-top:16px; }
+    .tcard{ background: var(--card); border:1px solid rgba(255,255,255,.08); border-radius:16px; padding:16px; min-height:140px; position:relative; }
+    .stars{ color:var(--brand3); font-size:14px }
+    .tuser{ font-weight:800; margin-top:6px }
+    .tslide{ display:none }
+    .tslide.active{ display:block }
+
+    /* Stats */
+    .stats{ display:grid; grid-template-columns: repeat(4, 1fr); gap:12px; margin-top:16px; }
+    .stat{ background: var(--card); border:1px solid rgba(255,255,255,.08); border-radius:16px; padding:16px; text-align:center }
+    .big{ font-size:26px; font-weight:900 }
+
+    /* FAQ */
+    .faq{ margin-top:16px }
+    .faq .q{ background: var(--card); border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:12px 14px; margin:8px 0; cursor:pointer; }
+    .faq .a{ display:none; padding:8px 14px; color:var(--muted) }
+
+    /* Sticky bottom bar (mobile) */
+    .stickybar{
+      position:fixed; bottom:10px; left:50%; transform:translateX(-50%);
+      display:flex; gap:10px; padding:8px; border-radius:14px; background:rgba(17,17,17,.6); backdrop-filter: blur(10px);
+      border:1px solid rgba(255,255,255,.1); z-index:60;
+    }
+    @media (min-width: 900px){ .stickybar{ display:none } }
+
+    /* Cart Drawer */
+    .drawer{ position:fixed; right:-420px; top:0; width:380px; height:100%; background:var(--card); border-left:1px solid rgba(255,255,255,.08); box-shadow: var(--shadow); z-index:80; transition:right .25s ease; display:flex; flex-direction:column; }
+    .drawer.open{ right:0 }
+    .drawer .head{ display:flex; align-items:center; justify-content:space-between; padding:16px; border-bottom:1px solid rgba(255,255,255,.08) }
+    .drawer .body{ padding:12px; gap:8px; overflow:auto; flex:1; }
+    .cart-item{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px; background: var(--glass); border:1px solid rgba(255,255,255,.08); border-radius:12px; }
+    .drawer .foot{ padding:12px; border-top:1px solid rgba(255,255,255,.08) }
+    .promo{ display:flex; gap:8px; }
+    .promo input{ all:unset; flex:1; padding:10px 12px; border-radius:10px; border:1px solid rgba(255,255,255,.12); background:var(--glass) }
+    .total{ display:flex; align-items:center; justify-content:space-between; margin-top:8px }
+
+    /* Toasts */
+    .toasts{ position:fixed; bottom:90px; left:16px; display:grid; gap:8px; z-index:70 }
+    .toast{ background: var(--card); border:1px solid rgba(255,255,255,.08); padding:10px 12px; border-radius:12px; box-shadow: var(--shadow); animation: slideIn .3s ease; }
+    @keyframes slideIn{ from{ transform: translateX(-8px); opacity:0 } to{ transform: translateX(0); opacity:1 } }
+
+    /* Modal */
+    .modal-backdrop{ position:fixed; inset:0; background: rgba(0,0,0,.55); backdrop-filter: blur(6px); display:none; align-items:center; justify-content:center; z-index:1000; }
+    .modal{ width:min(560px, 96vw); background: var(--card); border:1px solid rgba(255,255,255,.08); border-radius:18px; box-shadow: var(--shadow); padding:18px; }
+    .modal h3{ margin:0 0 8px 0 }
+    .modal .muted{ color:var(--muted); font-size:14px }
+    .field{ display:grid; gap:6px; margin-top:12px }
+    .field input, .field textarea{ width:100%; padding:12px 14px; border-radius:12px; border:1px solid rgba(255,255,255,.12); background: var(--glass); color:var(--text); outline:none; }
+    .row{ display:flex; gap:10px; justify-content:flex-end; margin-top:14px }
+    .ghost{ background: var(--glass); color: var(--text); border:1px solid rgba(255,255,255,.1); border-radius:12px; padding:10px 14px; font-weight:800; cursor:pointer }
+    .primary{ background: linear-gradient(90deg, var(--brand2), var(--brand3)); color:#111; border:none; border-radius:12px; padding:10px 14px; font-weight:800; cursor:pointer }
+
+    /* Footer note */
+    .footnote{ color:var(--muted); font-size:12px; text-align:center; margin-top:28px }
+
+    @media (max-width: 900px){
+      .hero, .contact{ grid-template-columns:1fr }
+      .topbar{ position:sticky }
+      .stats{ grid-template-columns: repeat(2, 1fr) }
+    }
+
+    @keyframes fadeInUp{ from { opacity: 0; transform: translateY(6px) } to { opacity: 1; transform: translateY(0) } }
+    [data-anim] { opacity:0; animation: fadeInUp .5s ease forwards; }
+  </style>
+</head>
+
+<body>
+  <div class="parallax" id="parallax"></div>
+
+  <div class="container" id="app">
+    <!-- Topbar -->
+    <div class="topbar">
+      <a class="brand" href="#">
+        <div class="logo">UC</div>
+        <div>
+          <div class="title" data-i18n="brandTitle">PUBG MOBILE UC</div>
+          <div class="subtitle" data-i18n="brandSubtitle">Doimiy ID orqali UC — tezkor yetkazib berish</div>
+        </div>
+      </a>
+
+      <div class="actions">
+        <div class="segmented" id="langSwitcher" aria-label="Language switcher">
+          <button data-lang="uz" class="active">UZ</button>
+          <button data-lang="ru">RU</button>
+          <button data-lang="en">EN</button>
+        </div>
+        <button id="themeToggle" class="btn" title="Theme">
+          <span>🌓</span><span data-i18n="theme">Dark/Light</span>
+        </button>
+        <button class="btn" id="openCart">
+          🛒 <span data-i18n="cart">Savatcha</span> <span id="cartCount" style="font-weight:900">0</span>
+        </button>
+        <a class="btn primary" href="https://t.me/MengliyevBahrom" target="_blank" rel="noopener">
+          <span>📨</span><span>@MengliyevBahrom</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="panel" data-anim style="animation-delay:.05s">
+        <h1 id="greet" data-i18n="heroTitle">Eng arzon narxlar, 100% ishonchli, tezkor yetkazib berish</h1>
+        <p data-i18n="heroDesc">Sizga kerak bo‘lgan UC paketini tanlang, ID kiritib, bir bosishda Telegram orqali buyurtma bering.</p>
+
+        <div class="badges">
+          <span class="pill">💯 <span data-i18n="trust">100% ishonch</span></span>
+          <span class="pill">⚡ <span data-i18n="fast">Tezkor yetkazib berish</span></span>
+          <span class="pill">🛡️ <span data-i18n="safe">Hisob xavfsizligi</span></span>
+          <span class="pill">👥 <span id="onlineUsers">—</span> <span data-i18n="online">online</span></span>
+        </div>
+
+        <div class="controls">
+          <label class="input" style="max-width:360px">
+            🔎
+            <input id="search" placeholder="Qidirish: 660, 120, 25 200..." data-i18n-placeholder="searchPh" />
+          </label>
+
+          <label class="input" style="max-width:220px">
+            ⏫
+            <select id="sort">
+              <option value="asc" data-i18n="cheapFirst">Arzondan qimmatga</option>
+              <option value="desc" data-i18n="expensiveFirst">Qimmatdan arzonga</option>
+            </select>
+          </label>
+
+          <div class="chips" id="chips">
+            <button class="chip active" data-filter="all" data-i18n="all">Hammasi</button>
+            <button class="chip" data-filter="TOP">TOP</button>
+            <button class="chip" data-filter="MASHHUR" data-i18n="popular">MASHHUR</button>
+            <button class="chip" data-filter="VIP">VIP</button>
+          </div>
+        </div>
+
+        <div class="quick-filters">
+          <button class="chip" data-quick="low" data-i18n="cheapPacks">Arzon paketlar</button>
+          <button class="chip" data-quick="mid" data-i18n="midPacks">O‘rtacha</button>
+          <button class="chip" data-quick="high" data-i18n="highPacks">Katta paketlar</button>
+          <button class="chip" id="clearQuick" data-i18n="clearFilter">Filtrni tozalash</button>
+        </div>
+
+        <div class="panel" style="margin-top:12px">
+          <strong>⏳ <span data-i18n="dealEnds">Aksiya tugashiga qoldi:</span></strong>
+          <div id="countdown" class="badges" style="margin-top:8px">
+            <span class="pill"><span id="d">--</span> <span data-i18n="days">kun</span></span>
+            <span class="pill"><span id="h">--</span> <span data-i18n="hours">soat</span></span>
+            <span class="pill"><span id="m">--</span> <span data-i18n="minutes">daq</span></span>
+            <span class="pill"><span id="s">--</span> <span data-i18n="seconds">son</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" data-anim style="animation-delay:.1s">
+        <h3 style="margin:0 0 8px 0">💳 <span data-i18n="cardsTitle">TO'LOV KARTA RAQAMLARI</span></h3>
+        <div class="payments">
+          <div class="paycard">
+            <div class="payhead">
+              <div class="payname">UZCARD</div>
+              <button class="copy" data-copy="5614 6887 0039 5675">📋 <span data-i18n="copy">Nusxa olish</span></button>
+            </div>
+            <div class="code">5614 6887 0039 5675</div>
+            <div class="muted">Mengliyev Bahrom</div>
+          </div>
+          <div class="paycard">
+            <div class="payhead">
+              <div class="payname">HUMO</div>
+              <button class="copy" data-copy="9860 1201 4526 4012">📋 <span data-i18n="copy">Nusxa olish</span></button>
+            </div>
+            <div class="code">9860 1201 4526 4012</div>
+            <div class="muted">Mengliyev Bahrom</div>
+          </div>
+        </div>
+        <p class="footnote">🎁 <span data-i18n="loyalty">Doimiy mijozlarga chegirmalar mavjud</span></p>
+      </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="stats">
+      <div class="stat"><div class="big" id="statOrders">0</div><div data-i18n="statOrders">Jami buyurtmalar</div></div>
+      <div class="stat"><div class="big" id="statUC">0</div><div data-i18n="statUC">Sotilgan UC</div></div>
+      <div class="stat"><div class="big" id="statRate">5.0★</div><div data-i18n="statRate">Mijozlar bahosi</div></div>
+      <div class="stat"><div class="big" id="statSince">2021</div><div data-i18n="statSince">Bozorga chiqqan yil</div></div>
+    </section>
+
+    <!-- Grid of packs -->
+    <section class="panel" style="margin-top:16px" data-anim>
+      <div class="grid" id="grid"></div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="panel" style="margin-top:16px">
+      <h3>💬 <span data-i18n="tTitle">Mijozlar fikrlari</span></h3>
+      <div class="testimonials" id="testimonials"></div>
+    </section>
+
+    <!-- Contact & How -->
+    <section class="contact">
+      <div class="panel" data-anim>
+        <h3 style="margin:0 0 8px 0">📱 <span data-i18n="contactTitle">Biz bilan bog'laning</span></h3>
+        <p class="muted" data-i18n="contactDesc">24/7 xizmat ko‘rsatamiz. Telegram orqali tezkor aloqa.</p>
+        <a class="link" href="https://t.me/MengliyevBahrom" target="_blank" rel="noopener">📬 <span>@MengliyevBahrom</span></a>
+      </div>
+      <div class="panel" data-anim>
+        <h3 style="margin:0 0 8px 0">ℹ️ <span data-i18n="howTitle">Qanday ishlaydi?</span></h3>
+        <ol style="margin:0; padding-left:18px">
+          <li data-i18n="how1">Paketni tanlang va “Sotib olish” tugmasini bosing.</li>
+          <li data-i18n="how2">Paydo bo‘lgan oynada PUBG ID raqamingizni kiriting.</li>
+          <li data-i18n="how3">“Telegramga yuborish” tugmasini bosing — yozuv avtomatik tayyor bo‘ladi.</li>
+          <li data-i18n="how4">To‘lovni karta raqamlariga amalga oshiring.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="panel faq">
+      <h3>❓ <span data-i18n="faqTitle">Tez-tez so‘raladigan savollar</span></h3>
+      <div class="q">⏲️ <strong data-i18n="faqQ1">UC qancha vaqtda keladi?</strong></div>
+      <div class="a" data-i18n="faqA1">Odatda 5–20 daqiqa ichida. Ba’zan server band bo‘lsa, biroz ko‘proq vaqt ketishi mumkin.</div>
+      <div class="q">🔒 <strong data-i18n="faqQ2">Hisobim xavfsizmi?</strong></div>
+      <div class="a" data-i18n="faqA2">Ha, faqat ID kerak bo‘ladi. Login/parol so‘ramaymiz.</div>
+      <div class="q">💳 <strong data-i18n="faqQ3">Qanday to‘lov qilsam bo‘ladi?</strong></div>
+      <div class="a" data-i18n="faqA3">UZCARD va HUMO kartalari orqali.</div>
+    </section>
+
+    <p class="footnote">© <span id="year"></span> @MengliyevBahrom • <span data-i18n="footSafe">Hisobingiz xavfsizligi biz uchun muhim</span></p>
+  </div>
+
+  <!-- Sticky bottom bar (mobile) -->
+  <div class="stickybar">
+    <a class="btn primary" href="https://t.me/MengliyevBahrom" target="_blank" rel="noopener">📨 Telegram</a>
+    <button class="btn" id="openCartMobile">🛒 <span data-i18n="cart">Savatcha</span> <span id="cartCountMobile" style="font-weight:900">0</span></button>
+  </div>
+
+  <!-- Cart Drawer -->
+  <aside class="drawer" id="drawer">
+    <div class="head">
+      <div style="font-weight:900">🛒 <span data-i18n="yourCart">Savatchangiz</span></div>
+      <button class="ghost" id="closeDrawer">✖</button>
+    </div>
+    <div class="body" id="cartBody"></div>
+    <div class="foot">
+      <div class="promo">
+        <input id="promoCode" placeholder="PROMO (VIP10, BAHROM15)" />
+        <button class="btn" id="applyPromo" data-i18n="applyPromo">Qo‘llash</button>
+      </div>
+      <div class="total">
+        <div><strong data-i18n="total">Jami</strong>:</div>
+        <div><strong id="cartTotal">0</strong> <span class="muted">so'm</span></div>
+      </div>
+      <button class="btn primary" id="orderCart" style="width:100%; margin-top:8px">🚀 <span data-i18n="orderAll">Barchasini Telegramga yuborish</span></button>
+    </div>
+  </aside>
+
+  <!-- Toasts -->
+  <div class="toasts" id="toasts"></div>
+
+  <!-- Order Modal -->
+  <div class="modal-backdrop" id="modalBackdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <h3 id="modalTitle">🧾 <span data-i18n="orderTitle">Buyurtma ma'lumoti</span></h3>
+      <div class="muted" id="modalPack">—</div>
+
+      <div class="field">
+        <label for="playerId"><strong>🔢 <span data-i18n="yourId">PUBG ID raqamingiz</span></strong></label>
+        <input id="playerId" type="text" placeholder="1234567890" inputmode="numeric" />
+      </div>
+
+      <div class="field">
+        <label for="note"><strong>📝 <span data-i18n="note">Izoh (ixtiyoriy)</span></strong></label>
+        <textarea id="note" rows="3" placeholder=""></textarea>
+      </div>
+
+      <div class="field">
+        <label><strong>💳 <span data-i18n="payTo">To'lov uchun karta</span></strong></label>
+        <div style="display:flex; gap:8px; flex-wrap:wrap">
+          <button class="chip active" data-pay="UZCARD">UZCARD</button>
+          <button class="chip" data-pay="HUMO">HUMO</button>
+        </div>
+      </div>
+
+      <div class="row">
+        <button class="ghost" id="closeModal"><span data-i18n="close">Yopish</span></button>
+        <button class="primary" id="sendTg"><span data-i18n="sendTg">Telegramga yuborish</span> 🚀</button>
+      </div>
+
+      <p class="footnote" style="margin-top:10px">🔒 <span data-i18n="privacy">Ma'lumotlaringiz faqat buyurtma uchun ishlatiladi.</span></p>
+    </div>
+  </div>
+
+  <script>
+    // ====== CONSTANTS ======
+    const TG_USERNAME = "MengliyevBahrom";
+    const PROMOS = { VIP10: 0.10, BAHROM15: 0.15 };
+    const DEAL_END = new Date("2025-08-20T23:59:59+05:00").getTime();
+
+    // ====== DATA ======
+    const PACKS = [
+      { amount: "30 UC",    price: "8,000 so'm" },
+      { amount: "60 UC",    price: "12,000 so'm" },
+      { amount: "120 UC",   price: "24,000 so'm", tag: "MASHHUR" },
+      { amount: "180 UC",   price: "36,000 so'm" },
+      { amount: "325 UC",   price: "57,000 so'm", tag: "MASHHUR" },
+      { amount: "355 UC",   price: "66,000 so'm" },
+      { amount: "385 UC",   price: "70,000 so'm" },
+      { amount: "445 UC",   price: "82,000 so'm" },
+      { amount: "565 UC",   price: "108,000 so'm", tag: "TOP" },
+      { amount: "660 UC",   price: "113,000 so'm" },
+      { amount: "720 UC",   price: "126,000 so'm", tag: "MASHHUR" },
+      { amount: "985 UC",   price: "172,000 so'm" },
+      { amount: "1,320 UC", price: "225,000 so'm", tag: "TOP" },
+      { amount: "1,800 UC", price: "285,000 so'm" },
+      { amount: "1,920 UC", price: "315,000 so'm", tag: "MASHHUR" },
+      { amount: "2,125 UC", price: "350,000 so'm" },
+      { amount: "3,120 UC", price: "515,000 so'm", tag: "TOP" },
+      { amount: "3,850 UC", price: "560,000 so'm" },
+      { amount: "4,000 UC", price: "605,000 so'm", tag: "MASHHUR" },
+      { amount: "6,000 UC", price: "925,000 so'm" },
+      { amount: "8,100 UC", price: "1,100,000 so'm", tag: "TOP" },
+      { amount: "8,400 UC", price: "1,160,000 so'm" },
+      { amount: "16,800 UC", price: "2,450,000 so'm", tag: "VIP" },
+      { amount: "25,200 UC", price: "3,650,000 so'm", tag: "VIP" },
+      { amount: "33,600 UC", price: "4,850,000 so'm", tag: "VIP" },
+      { amount: "42,000 UC", price: "6,050,000 so'm", tag: "PREMIUM" },
+      { amount: "50,400 UC", price: "7,250,000 so'm", tag: "PREMIUM" },
+      { amount: "84,000 UC", price: "12,000,000 so'm", tag: "MEGA" },
+    ];
+
+    const TESTIMONIALS = [
+      { name: "Jahongir",  stars:5, text: "10 daqiqada keldi, zo‘r xizmat!" },
+      { name: "Aziza",     stars:5, text: "Narxlar juda ma’qul, rahmat!" },
+      { name: "Murod",     stars:4, text: "Hammasi super, yana buyurtma qilaman." },
+      { name: "Sardor",    stars:5, text: "Operator tez javob berdi. Tavsiya qilaman!" },
+    ];
+
+    // i18n dictionary
+    const I18N = {
+      uz: {
+        brandTitle:"PUBG MOBILE UC",
+        brandSubtitle:"Doimiy ID orqali UC — tezkor yetkazib berish",
+        theme:"Dark/Light",
+        cart:"Savatcha",
+        heroTitle:"Eng arzon narxlar, 100% ishonchli, tezkor yetkazib berish",
+        heroDesc:"Sizga kerak bo‘lgan UC paketini tanlang, ID kiritib, bir bosishda Telegram orqali buyurtma bering.",
+        trust:"100% ishonch",
+        fast:"Tezkor yetkazib berish",
+        safe:"Hisob xavfsizligi",
+        online:"online",
+        searchPh:"Qidirish: 660, 120, 25 200...",
+        cheapFirst:"Arzondan qimmatga",
+        expensiveFirst:"Qimmatdan arzonga",
+        all:"Hammasi",
+        popular:"MASHHUR",
+        cheapPacks:"Arzon paketlar",
+        midPacks:"O‘rtacha",
+        highPacks:"Katta paketlar",
+        clearFilter:"Filtrni tozalash",
+        dealEnds:"Aksiya tugashiga qoldi:",
+        days:"kun", hours:"soat", minutes:"daq", seconds:"son",
+        cardsTitle:"TO'LOV KARTA RAQAMLARI",
+        copy:"Nusxa olish",
+        loyalty:"Doimiy mijozlarga chegirmalar mavjud",
+        tTitle:"Mijozlar fikrlari",
+        contactTitle:"Biz bilan bog'laning",
+        contactDesc:"24/7 xizmat ko‘rsatamiz. Telegram orqali tezkor aloqa.",
+        howTitle:"Qanday ishlaydi?",
+        how1:"Paketni tanlang va “Sotib olish” tugmasini bosing.",
+        how2:"Paydo bo‘lgan oynada PUBG ID raqamingizni kiriting.",
+        how3:"“Telegramga yuborish” tugmasini bosing — yozuv avtomatik tayyor bo‘ladi.",
+        how4:"To‘lovni karta raqamlariga amalga oshiring.",
+        footSafe:"Hisobingiz xavfsizligi biz uchun muhim",
+        orderTitle:"Buyurtma ma'lumoti",
+        yourId:"PUBG ID raqamingiz",
+        note:"Izoh (ixtiyoriy)",
+        payTo:"To'lov uchun karta",
+        close:"Yopish",
+        sendTg:"Telegramga yuborish",
+        privacy:"Ma'lumotlaringiz faqat buyurtma uchun ishlatiladi.",
+        buy:"Sotib olish",
+        addCart:"Savatchaga",
+        wish:"⭐",
+        tagTOP:"TOP", tagVIP:"VIP", tagPOPULAR:"MASHHUR", tagPREMIUM:"PREMIUM", tagMEGA:"MEGA",
+        copied:"Nusxa olindi ✅",
+        fillId:"Iltimos, PUBG ID kiriting.",
+        yourCart:"Savatchangiz",
+        applyPromo:"Qo‘llash",
+        total:"Jami",
+        orderAll:"Barchasini Telegramga yuborish",
+        statOrders:"Jami buyurtmalar",
+        statUC:"Sotilgan UC",
+        statRate:"Mijozlar bahosi",
+        statSince:"Bozorga chiqqan yil",
+        toast:"Hozirgina {pack} olindi!",
+        greetMorning:"Xayrli tong!",
+        greetDay:"Assalomu alaykum!",
+        greetEvening:"Xayrli kech!",
+      },
+      ru: {
+        brandTitle:"PUBG MOBILE UC",
+        brandSubtitle:"UC по постоянному ID — быстрая доставка",
+        theme:"Тема",
+        cart:"Корзина",
+        heroTitle:"Лучшие цены, 100% доверие, мгновенная доставка",
+        heroDesc:"Выберите пакет UC, введите ID и отправьте заказ в Telegram в один клик.",
+        trust:"100% доверие",
+        fast:"Быстрая доставка",
+        safe:"Безопасность аккаунта",
+        online:"онлайн",
+        searchPh:"Поиск: 660, 120, 25 200...",
+        cheapFirst:"Сначала дешёвые",
+        expensiveFirst:"Сначала дорогие",
+        all:"Все",
+        popular:"ПОПУЛЯРНО",
+        cheapPacks:"Дешёвые",
+        midPacks:"Средние",
+        highPacks:"Крупные",
+        clearFilter:"Сбросить фильтр",
+        dealEnds:"До конца акции:",
+        days:"дн", hours:"ч", minutes:"мин", seconds:"сек",
+        cardsTitle:"ПЛАТЁЖНЫЕ КАРТЫ",
+        copy:"Копировать",
+        loyalty:"Постоянным клиентам — скидки",
+        tTitle:"Отзывы клиентов",
+        contactTitle:"Связаться с нами",
+        contactDesc:"Работаем 24/7. Быстрый контакт через Telegram.",
+        howTitle:"Как это работает?",
+        how1:"Выберите пакет и нажмите «Купить».",
+        how2:"В окне введите ваш PUBG ID.",
+        how3:"Нажмите «Отправить в Telegram» — сообщение сформируется автоматически.",
+        how4:"Оплатите на указанные карты.",
+        footSafe:"Безопасность вашего аккаунта важна для нас",
+        orderTitle:"Детали заказа",
+        yourId:"Ваш PUBG ID",
+        note:"Примечание (необязательно)",
+        payTo:"Карта для оплаты",
+        close:"Закрыть",
+        sendTg:"Отправить в Telegram",
+        privacy:"Ваши данные используются только для заказа.",
+        buy:"Купить",
+        addCart:"В корзину",
+        wish:"⭐",
+        tagTOP:"ТОП", tagVIP:"VIP", tagPOPULAR:"ПОПУЛЯРНО", tagPREMIUM:"ПРЕМИУМ", tagMEGA:"МЕГА",
+        copied:"Скопировано ✅",
+        fillId:"Пожалуйста, введите PUBG ID.",
+        yourCart:"Ваша корзина",
+        applyPromo:"Применить",
+        total:"Итого",
+        orderAll:"Отправить всё в Telegram",
+        statOrders:"Всего заказов",
+        statUC:"Продано UC",
+        statRate:"Оценка клиентов",
+        statSince:"С года",
+        toast:"Только что купили {pack}!",
+        greetMorning:"Доброе утро!",
+        greetDay:"Здравствуйте!",
+        greetEvening:"Добрый вечер!",
+      },
+      en: {
+        brandTitle:"PUBG MOBILE UC",
+        brandSubtitle:"UC via permanent ID — fast delivery",
+        theme:"Theme",
+        cart:"Cart",
+        heroTitle:"Best prices, 100% trusted, lightning-fast delivery",
+        heroDesc:"Pick your UC pack, enter your ID, and send the order to Telegram in one click.",
+        trust:"100% trusted",
+        fast:"Fast delivery",
+        safe:"Account safety",
+        online:"online",
+        searchPh:"Search: 660, 120, 25,200...",
+        cheapFirst:"Price: Low → High",
+        expensiveFirst:"Price: High → Low",
+        all:"All",
+        popular:"POPULAR",
+        cheapPacks:"Budget packs",
+        midPacks:"Mid tier",
+        highPacks:"Big packs",
+        clearFilter:"Clear filter",
+        dealEnds:"Deal ends in:",
+        days:"d", hours:"h", minutes:"m", seconds:"s",
+        cardsTitle:"PAYMENT CARDS",
+        copy:"Copy",
+        loyalty:"Loyalty discounts available",
+        tTitle:"Customer reviews",
+        contactTitle:"Contact us",
+        contactDesc:"Support 24/7. Fast chat via Telegram.",
+        howTitle:"How it works",
+        how1:"Choose a pack and click “Buy”.",
+        how2:"Enter your PUBG ID in the popup.",
+        how3:"Click “Send to Telegram” — message is prepared automatically.",
+        how4:"Pay to the card numbers shown.",
+        footSafe:"Your account safety is important to us",
+        orderTitle:"Order details",
+        yourId:"Your PUBG ID",
+        note:"Note (optional)",
+        payTo:"Payment card",
+        close:"Close",
+        sendTg:"Send to Telegram",
+        privacy:"Your data is used only to process the order.",
+        buy:"Buy",
+        addCart:"Add to cart",
+        wish:"⭐",
+        tagTOP:"TOP", tagVIP:"VIP", tagPOPULAR:"POPULAR", tagPREMIUM:"PREMIUM", tagMEGA:"MEGA",
+        copied:"Copied ✅",
+        fillId:"Please enter your PUBG ID.",
+        yourCart:"Your cart",
+        applyPromo:"Apply",
+        total:"Total",
+        orderAll:"Send all to Telegram",
+        statOrders:"Total orders",
+        statUC:"UC sold",
+        statRate:"Customer rating",
+        statSince:"Since",
+        toast:"Just purchased {pack}!",
+        greetMorning:"Good morning!",
+        greetDay:"Welcome!",
+        greetEvening:"Good evening!",
+      }
+    };
+
+    // ====== UTIL ======
+    const $ = (q, el=document) => el.querySelector(q);
+    const $$ = (q, el=document) => [...el.querySelectorAll(q)];
+    const save = (k,v)=>localStorage.setItem(k, typeof v==="string" ? v : JSON.stringify(v));
+    const load = (k, def=null)=>{
+      const v = localStorage.getItem(k); if(!v) return def;
+      try { return JSON.parse(v) } catch { return v }
+    };
+    const currencyToNumber = str => Number((str || '').replaceAll(" ", "").replace(/[^\d]/g, "")) || 0;
+    const numberToCurrency = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+    // Theme
+    const applyTheme = (t) => { document.documentElement.setAttribute("data-theme", t); save("theme", t); };
+    const initTheme = () => {
+      const stored = load("theme");
+      if(stored){ applyTheme(stored); return; }
+      const prefers = matchMedia("(prefers-color-scheme: light)").matches ? "light":"dark";
+      applyTheme(prefers);
+    };
+
+    // Language
+    let currentLang = "uz";
+    const setLang = (lang) => {
+      currentLang = lang; save("lang", lang);
+      $$("[data-i18n]").forEach(el=>{ const key = el.getAttribute("data-i18n"); el.textContent = I18N[lang][key]; });
+      $$("[data-i18n-placeholder]").forEach(el=>{ const key = el.getAttribute("data-i18n-placeholder"); el.setAttribute("placeholder", I18N[lang][key] || el.getAttribute("placeholder")); });
+      $$("#langSwitcher button").forEach(b=> b.classList.toggle("active", b.dataset.lang===lang));
+      $$("#grid .buy").forEach(btn => btn.textContent = I18N[lang].buy);
+      $$("#grid .addCart").forEach(btn => btn.textContent = I18N[lang].addCart);
+      $$("#grid .wish").forEach(btn => btn.title = "Wishlist");
+      $$("#grid .tag").forEach(tag=>{
+        const val = tag.getAttribute("data-tag");
+        const map = { "TOP": I18N[lang].tagTOP, "MASHHUR": I18N[lang].tagPOPULAR, "VIP": I18N[lang].tagVIP, "PREMIUM": I18N[lang].tagPREMIUM, "MEGA": I18N[lang].tagMEGA };
+        tag.textContent = map[val] || val;
+      });
+      $("#search").setAttribute("placeholder", I18N[lang].searchPh);
+      // Greeting
+      const h = new Date().getHours();
+      const greet = h<11? I18N[lang].greetMorning : h<18? I18N[lang].greetDay : I18N[lang].greetEvening;
+      $("#greet").textContent = greet + " " + I18N[lang].heroTitle;
+    };
+    const initLang = () => {
+      const stored = load("lang"); if(stored){ setLang(stored); return; }
+      const browser = (navigator.language || "uz").slice(0,2);
+      const defaultLang = ["uz","ru","en"].includes(browser) ? browser : "uz";
+      setLang(defaultLang);
+    };
+
+    // ====== RENDER PACKS ======
+    const grid = $("#grid");
+    let state = { filter: "all", q: "", sort: "asc", quick: null };
+    let wishlist = new Set(load("wishlist", []));
+    let cart = load("cart", []);
+    let promo = load("promo", null);
+
+    const matchesFilter = (p) => state.filter === "all" ? true : p.tag === state.filter;
+    const matchesQuery = (p) => {
+      const q = state.q.toLowerCase();
+      if(!q) return true;
+      return (p.amount.toLowerCase().includes(q) || p.price.toLowerCase().includes(q));
+    };
+    const matchesQuick = (p) => {
+      if(!state.quick) return true;
+      const n = currencyToNumber(p.price);
+      if(state.quick==="low") return n <= 120000;      // ~ <= 120k
+      if(state.quick==="mid") return n > 120000 && n <= 600000;
+      if(state.quick==="high") return n > 600000;
+      return true;
+    };
+
+    const render = () => {
+      const list = PACKS
+        .filter(p => matchesFilter(p) && matchesQuery(p) && matchesQuick(p))
+        .sort((a,b) => {
+          const na = currencyToNumber(a.price), nb = currencyToNumber(b.price);
+          return state.sort === "asc" ? na-nb : nb-na;
+        });
+
+      grid.innerHTML = "";
+      list.forEach((p)=>{
+        const card = document.createElement("div");
+        card.className = "card";
+        card.setAttribute("data-anim","");
+
+        const tag = p.tag ? `<span class="tag" data-tag="${p.tag}">${p.tag}</span>`:"";
+        const wished = wishlist.has(p.amount) ? "active":"";
+        card.innerHTML = `
+          <div class="shine"></div>
+          ${tag}
+          <div class="row">
+            <div class="amount">${p.amount}</div>
+            <button class="icon-btn wish ${wished}" title="${I18N[currentLang].wish}">⭐</button>
+          </div>
+          <div class="price">${p.price}</div>
+          <div class="cta">
+            <button class="buy">${I18N[currentLang].buy}</button>
+            <button class="icon-btn addCart">${I18N[currentLang].addCart}</button>
+          </div>
+        `;
+        $(".buy", card).addEventListener("click", ()=> openModal(p));
+        $(".addCart", card).addEventListener("click", ()=> addToCart(p));
+        $(".wish", card).addEventListener("click", (e)=> toggleWish(p, e.currentTarget));
+        grid.appendChild(card);
+      });
+      setLang(currentLang);
+      updateCartBadges();
+    };
+
+    function toggleWish(p, btn){
+      if(wishlist.has(p.amount)){ wishlist.delete(p.amount); btn.classList.remove("active"); }
+      else { wishlist.add(p.amount); btn.classList.add("active"); }
+      save("wishlist", [...wishlist]);
+    }
+
+    function addToCart(p){
+      const item = cart.find(x=>x.amount===p.amount);
+      if(item) item.qty += 1; else cart.push({ amount:p.amount, price:p.price, qty:1 });
+      save("cart", cart); updateCartBadges(); toast(I18N[currentLang].toast.replace("{pack}", p.amount));
+      // Stats
+      incStat(p);
+    }
+
+    function removeFromCart(amount){
+      cart = cart.filter(x=>x.amount!==amount); save("cart", cart); renderCart(); updateCartBadges();
+    }
+    function changeQty(amount, delta){
+      const it = cart.find(x=>x.amount===amount); if(!it) return;
+      it.qty += delta; if(it.qty<=0) removeFromCart(amount); else { save("cart", cart); renderCart(); updateCartBadges(); }
+    }
+
+    // Controls
+    $("#search").addEventListener("input", (e)=>{ state.q = e.target.value; render(); });
+    $("#sort").addEventListener("change", (e)=>{ state.sort = e.target.value; render(); });
+    $$("#chips .chip").forEach(ch=>{
+      ch.addEventListener("click", ()=>{
+        $$("#chips .chip").forEach(c=>c.classList.remove("active"));
+        ch.classList.add("active");
+        state.filter = ch.dataset.filter;
+        render();
+      });
+    });
+    $$(".quick-filters .chip").forEach(ch=>{
+      if(ch.id==="clearQuick"){ ch.addEventListener("click", ()=>{ state.quick=null; render(); }); return; }
+      ch.addEventListener("click", ()=>{ state.quick = ch.dataset.quick; render(); });
+    });
+
+    // Copy buttons
+    $$(".copy").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const val = btn.dataset.copy;
+        navigator.clipboard.writeText(val).then(()=>{
+          const prev = btn.innerHTML;
+          btn.innerHTML = "✅ " + I18N[currentLang].copied;
+          setTimeout(()=> btn.innerHTML = prev, 1200);
+        });
+      });
+    });
+
+    // ====== MODAL ======
+    const backdrop = $("#modalBackdrop");
+    const playerIdEl = $("#playerId");
+    const noteEl = $("#note");
+    let selectedPack = null;
+    let selectedPay = "UZCARD";
+
+    const openModal = (pack) => {
+      selectedPack = pack;
+      $("#modalPack").textContent = `${pack.amount} • ${pack.price}`;
+      backdrop.style.display = "flex";
+      backdrop.setAttribute("aria-hidden","false");
+      document.body.style.overflow = "hidden";
+      playerIdEl.focus();
+    };
+    const closeModal = () => {
+      backdrop.style.display = "none";
+      backdrop.setAttribute("aria-hidden","true");
+      document.body.style.overflow = "";
+      playerIdEl.value = "";
+      noteEl.value = "";
+    };
+    $("#closeModal").addEventListener("click", closeModal);
+    backdrop.addEventListener("click", (e)=>{ if(e.target === backdrop) closeModal(); });
+    $$("[data-pay]").forEach(b=>{
+      b.addEventListener("click", ()=>{
+        $$("[data-pay]").forEach(x=>x.classList.remove("active"));
+        b.classList.add("active");
+        selectedPay = b.dataset.pay;
+      });
+    });
+
+    $("#sendTg").addEventListener("click", ()=>{
+      const id = playerIdEl.value.trim();
+      if(!/^[0-9]{6,}$/.test(id)){ alert(I18N[currentLang].fillId); return; }
+      const note = noteEl.value.trim();
+      const payMap = {
+        "UZCARD": "UZCARD: 5614 6887 0039 5675 — Mengliyev Bahrom",
+        "HUMO":   "HUMO: 9860 1201 4526 4012 — Mengliyev Bahrom",
+      };
+      const i18nHeader = { uz: "🎮 PUBG Mobile UC buyurtma", ru: "🎮 Заказ PUBG Mobile UC", en: "🎮 PUBG Mobile UC Order" }[currentLang];
+      const text =
+`${i18nHeader}
+
+💰 ${selectedPack.amount}
+💵 ${selectedPack.price}
+🔢 ID: ${id}${note ? `\n📝 ${note}`:""}
+
+💳 ${payMap[selectedPay]}
+
+👤 Operator: @${TG_USERNAME}`;
+      const url = `https://t.me/${TG_USERNAME}?text=${encodeURIComponent(text)}`;
+      window.open(url, "_blank", "noopener");
+      closeModal(); incStat(selectedPack);
+    });
+
+    // ====== CART DRAWER ======
+    const drawer = $("#drawer");
+    const cartBody = $("#cartBody");
+    const cartTotalEl = $("#cartTotal");
+    $("#openCart").addEventListener("click", ()=> drawer.classList.add("open"));
+    $("#openCartMobile").addEventListener("click", ()=> drawer.classList.add("open"));
+    $("#closeDrawer").addEventListener("click", ()=> drawer.classList.remove("open"));
+
+    function renderCart(){
+      cartBody.innerHTML = "";
+      let total = 0;
+      cart.forEach(it=>{
+        const price = currencyToNumber(it.price)*it.qty; total += price;
+        const row = document.createElement("div");
+        row.className = "cart-item";
+        row.innerHTML = `
+          <div style="font-weight:800">${it.amount}</div>
+          <div style="display:flex; align-items:center; gap:6px">
+            <button class="icon-btn" aria-label="-">−</button>
+            <div style="min-width:24px; text-align:center">${it.qty}</div>
+            <button class="icon-btn" aria-label="+">+</button>
+            <div style="font-weight:800">${numberToCurrency(price)}</div>
+            <button class="ghost">✖</button>
+          </div>
+        `;
+        const [minus, plus, , , removeBtn] = row.querySelectorAll("button");
+        minus.addEventListener("click", ()=> changeQty(it.amount, -1));
+        plus.addEventListener("click", ()=> changeQty(it.amount, +1));
+        removeBtn.addEventListener("click", ()=> removeFromCart(it.amount));
+        cartBody.appendChild(row);
+      });
+      // Apply promo
+      let discount = 0;
+      if(promo && PROMOS[promo]){ discount = Math.round(total*PROMOS[promo]); }
+      const final = total - discount;
+      cartTotalEl.textContent = numberToCurrency(final);
+      updateCartBadges();
+    }
+
+    function updateCartBadges(){
+      const count = cart.reduce((s,x)=>s+x.qty,0);
+      $("#cartCount").textContent = count;
+      $("#cartCountMobile").textContent = count;
+    }
+
+    $("#applyPromo").addEventListener("click", ()=>{
+      const code = $("#promoCode").value.trim().toUpperCase();
+      if(PROMOS[code]){ promo = code; save("promo", promo); renderCart(); toast("✅ Promo: " + code); }
+      else { promo = null; save("promo", null); toast("❌ Promo topilmadi"); renderCart(); }
+    });
+
+    $("#orderCart").addEventListener("click", ()=>{
+      if(cart.length===0){ toast("Savatcha bo‘sh"); return; }
+      const lines = cart.map(it=> `• ${it.amount} × ${it.qty} = ${numberToCurrency(currencyToNumber(it.price)*it.qty)} so'm`).join("\n");
+      const total = cart.reduce((s,x)=> s + currencyToNumber(x.price)*x.qty, 0);
+      const discount = promo && PROMOS[promo] ? Math.round(total*PROMOS[promo]) : 0;
+      const final = total - discount;
+      const text =
+`🛒 PUBG Mobile UC — Savatcha
+
+${lines}
+${promo? `\n🏷 Promo: ${promo} (−${numberToCurrency(discount)} so'm)` : ""}
+────────────
+💵 Jami: ${numberToCurrency(final)} so'm
+
+👤 Operator: @${TG_USERNAME}`;
+      const url = `https://t.me/${TG_USERNAME}?text=${encodeURIComponent(text)}`;
+      window.open(url, "_blank", "noopener");
+      // Stats
+      cart.forEach(p=> incStat({amount:p.amount, price:numberToCurrency(currencyToNumber(p.price))+" so'm"}));
+    });
+
+    // ====== TESTIMONIALS ======
+    const tRoot = $("#testimonials");
+    function renderTestimonials(){
+      tRoot.innerHTML = "";
+      TESTIMONIALS.forEach((t,i)=>{
+        const el = document.createElement("div");
+        el.className = "tcard tslide" + (i===0? " active": "");
+        el.innerHTML = `<div class="stars">${"★".repeat(t.stars)}${"☆".repeat(5-t.stars)}</div><div class="tuser">${t.name}</div><p class="muted">${t.text}</p>`;
+        tRoot.appendChild(el);
+      });
+      let idx=0;
+      setInterval(()=>{
+        const slides = $$(".tslide", tRoot);
+        slides.forEach(s=>s.classList.remove("active"));
+        idx = (idx+1)%slides.length;
+        slides[idx].classList.add("active");
+      }, 3500);
+    }
+
+    // ====== TOASTS (Live orders) ======
+    const toasts = $("#toasts");
+    function toast(msg){
+      const el = document.createElement("div"); el.className="toast"; el.textContent = msg; toasts.appendChild(el);
+      setTimeout(()=>{ el.style.opacity=.0; el.style.transform="translateX(-8px)"; setTimeout(()=> el.remove(), 300); }, 2600);
+    }
+    function startLiveOrders(){
+      const names = ["Ali","Bekzod","Nozima","Kamola","Javlon","Akbar","Madina","Shaxzod","Dilshod"];
+      setInterval(()=>{
+        const p = PACKS[Math.floor(Math.random()*PACKS.length)];
+        const n = names[Math.floor(Math.random()*names.length)];
+        const msg = `${n}: ` + I18N[currentLang].toast.replace("{pack}", p.amount);
+        toast(msg);
+      }, 9000);
+    }
+
+    // ====== COUNTDOWN ======
+    function tickCountdown(){
+      const now = Date.now(); const diff = DEAL_END - now;
+      const d = Math.max(0, Math.floor(diff/86400000));
+      const h = Math.max(0, Math.floor(diff%86400000/3600000));
+      const m = Math.max(0, Math.floor(diff%3600000/60000));
+      const s = Math.max(0, Math.floor(diff%60000/1000));
+      $("#d").textContent = d; $("#h").textContent = h; $("#m").textContent = m; $("#s").textContent = s;
+    }
+
+    // ====== STATS ======
+    function incStat(p){
+      // increase orders and sold UC count (rough estimate)
+      const so = load("statOrders", 1500) + 1; save("statOrders", so); $("#statOrders").textContent = numberToCurrency(so);
+      const uc = load("statUC", 250000) + (parseInt(p.amount.replace(/[^\d]/g,''))||0); save("statUC", uc); $("#statUC").textContent = numberToCurrency(uc);
+    }
+    function initStats(){
+      const so = load("statOrders", 1500); const uc = load("statUC", 250000);
+      animateCount($("#statOrders"), so); animateCount($("#statUC"), uc);
+      $("#statRate").textContent = "5.0★";
+      $("#statSince").textContent = "2021";
+    }
+    function animateCount(el, target){
+      let cur = 0; const step = Math.max(1, Math.floor(target/40));
+      const iv = setInterval(()=>{ cur += step; if(cur>=target){ cur = target; clearInterval(iv); } el.textContent = numberToCurrency(cur); }, 30);
+    }
+
+    // ====== ONLINE USERS ======
+    function setOnlineUsers(){
+      const val = Math.floor(50 + Math.random()*70);
+      $("#onlineUsers").textContent = val;
+    }
+
+    // ====== PARALLAX ======
+    window.addEventListener("scroll", ()=>{
+      const y = window.scrollY;
+      $("#parallax").style.transform = `translateY(${y*.05}px)`;
+    });
+
+    // ====== FAQ ======
+    $$(".faq .q").forEach(q=> q.addEventListener("click", ()=>{
+      const a = q.nextElementSibling; a.style.display = a.style.display==="block"? "none": "block";
+    }));
+
+    // ====== INIT ======
+    initTheme();
+    initLang();
+    render();
+    renderCart();
+    renderTestimonials();
+    setOnlineUsers();
+    initStats();
+    startLiveOrders();
+    tickCountdown(); setInterval(tickCountdown, 1000);
+    $("#year").textContent = new Date().getFullYear();
+
+    // Theme toggle
+    $("#themeToggle").addEventListener("click", ()=>{
+      const t = document.documentElement.getAttribute("data-theme") === "light" ? "dark":"light";
+      applyTheme(t);
+    });
+    // Lang switcher
+    $$("#langSwitcher button").forEach(b=> b.addEventListener("click", ()=> setLang(b.dataset.lang)));
+    // Accessibility: ESC to close modal
+    window.addEventListener("keydown", (e)=>{ if(e.key === "Escape" && $("#modalBackdrop").style.display === "flex") closeModal(); });
+  </script>
+</body>
+</html>
